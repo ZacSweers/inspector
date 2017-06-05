@@ -71,10 +71,10 @@ would look. This unfortunately is not currently possible since support annotatio
 
 ### TODO
 
-- Should this log errors somewhere rather than throwing? This is pretty flexible.
 - Revisit `AdapterMethodsFactory`.
 - Extract RAVE and support annotations support to pluggable SPIs to AV extension
 - ValidatorFactory generation for the AV extension
+- Should it have an alternative annotation processor to the AV extension? Should the extension be a processor instead?
 
 
 ### Notes
