@@ -71,7 +71,6 @@ would look. This unfortunately is not currently possible since support annotatio
 
 ### TODO
 
-- Revisit `nullSafe()` calls. Came from Moshi, not sure we really need it.
 - Should this log errors somewhere rather than throwing? This is pretty flexible.
 - Revisit `AdapterMethodsFactory`.
 - Extract RAVE and support annotations support to pluggable SPIs to AV extension

@@ -125,6 +125,8 @@ final class ClassValidator<T> extends Validator<T> {
               }
             }
           };
+        } else {
+          validator = validator.nullSafe();
         }
 
         // Create the binding between method and validator.

@@ -24,8 +24,18 @@ public abstract class Validator<T> {
   }
 
   public Validator<T> nullSafe() {
-    // TODO
-    return this;
+    final Validator<T> delegate = this;
+    return new Validator<T>() {
+      @Override public void validate(T object) throws ValidationException {
+        if (object != null) {
+          delegate.validate(object);
+        }
+      }
+
+      @Override public String toString() {
+        return delegate + ".nullSafe()";
+      }
+    };
   }
 
   public interface Factory {
