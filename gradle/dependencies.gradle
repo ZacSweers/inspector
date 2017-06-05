@@ -1,0 +1,52 @@
+import org.gradle.internal.jvm.Jvm
+
+def versions = [
+    errorProne: '2.0.19'
+]
+
+def build = [
+    errorProne: "com.google.errorprone:error_prone_core:${versions.errorProne}",
+
+    repositories: [
+        google: 'https://maven.google.com/',
+        plugins: 'https://plugins.gradle.org/m2/'
+    ],
+
+    gradlePlugins: [
+        apt: 'net.ltgt.gradle:gradle-apt-plugin:0.10',
+        errorProne: 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.10'
+    ]
+]
+
+def auto = [
+    value: "com.google.auto.value:auto-value:1.4.1",
+    service: "com.google.auto.service:auto-service:1.0-rc3"
+]
+
+def misc = [
+    guava: "com.google.guava:guava:22.0",
+    javapoet: "com.squareup:javapoet:1.9.0",
+    errorProneAnnotations: "com.google.errorprone:error_prone_annotations:${versions.errorProne}",
+    jsr305: 'com.google.code.findbugs:jsr305:3.0.2',
+    rave: 'com.uber:rave:2.0.0'
+]
+
+def support = [
+    annotations: "com.android.support:support-annotations:25.0.1"
+]
+
+def test = [
+    compileTesting: 'com.google.testing.compile:compile-testing:0.11',
+    junit: 'junit:junit:4.12',
+    toolsJar: files(Jvm.current().getToolsJar()),
+    truth: 'com.google.truth:truth:0.32'
+]
+
+ext.deps = [
+    "auto": auto,
+    "build": build,
+    "misc": misc,
+    "support": support,
+    "test": test,
+    "versions": versions
+]

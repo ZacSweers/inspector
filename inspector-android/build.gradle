@@ -1,0 +1,29 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven { url deps.build.repositories.plugins }
+  }
+  dependencies {
+    classpath deps.build.gradlePlugins.errorProne
+  }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'net.ltgt.errorprone'
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+repositories {
+  maven { url deps.build.repositories.google }
+}
+
+dependencies {
+  api project(':inspector')
+  api deps.support.annotations
+
+  errorprone deps.build.errorProne
+
+  testImplementation deps.test.junit
+  testImplementation deps.test.truth
+}

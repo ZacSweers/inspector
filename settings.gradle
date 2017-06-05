@@ -1,0 +1,6 @@
+rootProject.name = 'inspector-root'
+include ':auto-value-inspector'
+include ':inspector'
+include ':inspector-android'
+include ':inspector-sample'
+
