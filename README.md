@@ -12,7 +12,8 @@ There is a reflective class-based validator generator if you want, or you can us
 AutoValue extension to generate validator implementations for you.
 
 Validation normally operates on method return types. Everything is assumed non-null, unless annotated 
-with one of the number of `@Nullable` annotations out there.
+with one of the number of `@Nullable` annotations out there. Nullability is the only validation run 
+out of the box by the reflective adapter as well. Inspector is purposefully stupid, you know your own models!
 
 Looks like this
 
@@ -23,6 +24,9 @@ Inspector inspector = new Inspector.Builder()
     .add(BarValidator.FACTORY)
     .build();
 
+boolean isValid = inspector.validator(Foo.class).isValid(myFooStance);
+
+// Or more aggressively, but with descriptive error messages
 try {
   inspector.validator(Foo.class).validate(myFooInstance);
 } catch (ValidationException e) {
@@ -60,7 +64,7 @@ public abstract class Foo {
 }
 ```
 
-### auto-value-inspector
+### auto-value-android
 
 This is just a for-fun proof of concept of how some non-generated support library annotation validators 
 would look. This unfortunately is not currently possible since support annotations are not RUNTIME retained.
@@ -71,7 +75,7 @@ would look. This unfortunately is not currently possible since support annotatio
 - Should this log errors somewhere rather than throwing? This is pretty flexible.
 - Revisit `AdapterMethodsFactory`.
 - Extract RAVE and support annotations support to pluggable SPIs to AV extension
-- ValidatoryFactory generation for the AV extension
+- ValidatorFactory generation for the AV extension
 
 
 ### Notes

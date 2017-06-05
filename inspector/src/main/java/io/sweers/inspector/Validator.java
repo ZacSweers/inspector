@@ -14,6 +14,15 @@ public abstract class Validator<T> {
 
   public abstract void validate(T object) throws ValidationException;
 
+  public final boolean isValid(T object) {
+    try {
+      validate(object);
+      return true;
+    } catch (ValidationException e) {
+      return false;
+    }
+  }
+
   public Validator<T> nullSafe() {
     // TODO
     return this;
@@ -28,6 +37,8 @@ public abstract class Validator<T> {
      * <p>Implementations may use to {@link Inspector#validator} to compose adapters of other types,
      * or {@link Inspector#nextValidator} to delegate to the underlying adapter of the same type.
      */
-    @Nullable Validator<?> create(Type type, Set<? extends Annotation> annotations, Inspector inspector);
+    @Nullable Validator<?> create(Type type,
+        Set<? extends Annotation> annotations,
+        Inspector inspector);
   }
 }
