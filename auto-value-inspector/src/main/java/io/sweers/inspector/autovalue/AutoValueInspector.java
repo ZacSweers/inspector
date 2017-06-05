@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -471,7 +472,8 @@ import static javax.lang.model.element.Modifier.STATIC;
     if (mustBeTrue != null) {
       TypeMirror rType = element.getReturnType();
       TypeName returnType = TypeName.get(rType);
-      if (returnType != TypeName.BOOLEAN && returnType != TypeName.BOOLEAN.box()) {
+      if (!Objects.equals(returnType, TypeName.BOOLEAN) && !Objects.equals(returnType,
+          TypeName.BOOLEAN.box())) {
         throw new IllegalArgumentException(
             "@MustBeTrue can only be used on boolean return types but "
                 + methodName
@@ -488,7 +490,8 @@ import static javax.lang.model.element.Modifier.STATIC;
     if (mustBeFalse != null) {
       TypeMirror rType = element.getReturnType();
       TypeName returnType = TypeName.get(rType);
-      if (returnType != TypeName.BOOLEAN && returnType != TypeName.BOOLEAN.box()) {
+      if (!Objects.equals(returnType, TypeName.BOOLEAN) && !Objects.equals(returnType,
+          TypeName.BOOLEAN.box())) {
         throw new IllegalArgumentException(
             "@MustBeFalse can only be used on boolean return types but "
                 + methodName
