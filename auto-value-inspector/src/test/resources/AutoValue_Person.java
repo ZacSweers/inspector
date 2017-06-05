@@ -13,15 +13,23 @@ import java.util.Map;
 import java.util.Set;
 
 final class AutoValue_Person extends $AutoValue_Person {
-  AutoValue_Person(String firstName, String lastName, int age, String occupation, Date birthday,
-      String uuid, List<String> doublesOfStrings, Map<String, String> threePairs,
+  AutoValue_Person(String firstName, String lastName, int[] favoriteNumbers, List<String> aList,
+      Map<String, String> aMap, Set<String> favoriteFoods, String stringDefChecked,
+      int intDefChecked, int age, String occupation, Date birthday, String uuid,
+      List<String> doublesOfStrings, Map<String, String> threePairs,
       Set<String> atLeastThreeStrings, Set<String> atMostThreeStrings) {
-    super(firstName, lastName, age, occupation, birthday, uuid, doublesOfStrings, threePairs, atLeastThreeStrings, atMostThreeStrings);
+    super(firstName, lastName, favoriteNumbers, aList, aMap, favoriteFoods, stringDefChecked, intDefChecked, age, occupation, birthday, uuid, doublesOfStrings, threePairs, atLeastThreeStrings, atMostThreeStrings);
   }
 
   public static final class InspectorValidator extends Validator<Person> {
     private final Validator<String> firstNameValidator;
     private final Validator<String> lastNameValidator;
+    private final Validator<int[]> favoriteNumbersValidator;
+    private final Validator<List<String>> aListValidator;
+    private final Validator<Map<String, String>> aMapValidator;
+    private final Validator<Set<String>> favoriteFoodsValidator;
+    private final Validator<String> stringDefCheckedValidator;
+    private final Validator<Integer> intDefCheckedValidator;
     private final Validator<Integer> ageValidator;
     private final Validator<String> occupationValidator;
     private final Validator<Date> birthdayValidator;
@@ -33,6 +41,12 @@ final class AutoValue_Person extends $AutoValue_Person {
     public InspectorValidator(Inspector inspector) {
       this.firstNameValidator = inspector.validator(String.class);
       this.lastNameValidator = inspector.validator(String.class);
+      this.favoriteNumbersValidator = inspector.validator(int[].class);
+      this.aListValidator = inspector.validator(Types.newParameterizedType(List.class, String.class));
+      this.aMapValidator = inspector.validator(Types.newParameterizedType(Map.class, String.class, String.class));
+      this.favoriteFoodsValidator = inspector.validator(Types.newParameterizedType(Set.class, String.class));
+      this.stringDefCheckedValidator = inspector.validator(String.class);
+      this.intDefCheckedValidator = inspector.validator(int.class);
       this.ageValidator = inspector.validator(int.class);
       this.occupationValidator = inspector.validator(String.class);
       this.birthdayValidator = new DateValidator();
@@ -54,6 +68,39 @@ final class AutoValue_Person extends $AutoValue_Person {
         throw new ValidationException("lastName() is not null but returns a null");
       }
       lastNameValidator.validate(lastName);
+      int[] favoriteNumbers = value.favoriteNumbers();
+      if (favoriteNumbers == null) {
+        throw new ValidationException("favoriteNumbers() is not null but returns a null");
+      }
+      favoriteNumbersValidator.validate(favoriteNumbers);
+      List<String> aList = value.aList();
+      if (aList == null) {
+        throw new ValidationException("aList() is not null but returns a null");
+      }
+      aListValidator.validate(aList);
+      Map<String, String> aMap = value.aMap();
+      if (aMap == null) {
+        throw new ValidationException("aMap() is not null but returns a null");
+      }
+      aMapValidator.validate(aMap);
+      Set<String> favoriteFoods = value.favoriteFoods();
+      if (favoriteFoods == null) {
+        throw new ValidationException("favoriteFoods() is not null but returns a null");
+      }
+      favoriteFoodsValidator.validate(favoriteFoods);
+      String stringDefChecked = value.stringDefChecked();
+      if (stringDefChecked == null) {
+        throw new ValidationException("stringDefChecked() is not null but returns a null");
+      }
+      stringDefCheckedValidator.validate(stringDefChecked);
+      if (!("foo".equals(stringDefChecked) && "foo2".equals(stringDefChecked))) {
+        throw new ValidationException("stringDefChecked's value must be within scope of its StringDef. Is " + stringDefChecked);
+      }
+      int intDefChecked = value.intDefChecked();
+      intDefCheckedValidator.validate(intDefChecked);
+      if (!(intDefChecked != 0)) {
+        throw new ValidationException("intDefChecked's value must be within scope of its IntDef. Is " + intDefChecked);
+      }
       int age = value.age();
       ageValidator.validate(age);
       if (age < 0) {

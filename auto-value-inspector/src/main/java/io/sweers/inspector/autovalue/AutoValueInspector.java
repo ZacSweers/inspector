@@ -1,13 +1,16 @@
 package io.sweers.inspector.autovalue;
 
 import android.support.annotation.FloatRange;
+import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.Size;
+import android.support.annotation.StringDef;
 import com.google.auto.service.AutoService;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Longs;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -35,11 +38,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.AnnotationMirror;
@@ -220,7 +225,7 @@ import static javax.lang.model.element.Modifier.STATIC;
           constructor.addStatement("this.$N = new $T()", field, ClassName.get(e.getTypeMirror()));
         }
       } else if (usesJsonQualifier) {
-        constructor.addStatement("this.$N = adapter($N, \"$L\")",
+        constructor.addStatement("this.$N = validator($N, \"$L\")",
             field,
             inspector,
             prop.methodName);
@@ -425,7 +430,37 @@ import static javax.lang.model.element.Modifier.STATIC;
       }
     }
 
-    // TODO IntDef and StringDef
+    IntDef intDef = findAnnotationByAnnotation(prop.element.getAnnotationMirrors(), IntDef.class);
+    if (intDef != null) {
+      long[] values = intDef.value();
+      validateMethod.beginControlFlow("if (!($L))",
+          String.join(" && ",
+              Longs.asList(values)
+                  .stream()
+                  .map(l -> variableName + " != " + l)
+                  .collect(Collectors.toList())))
+          .addStatement("throw new $T(\"$L's value must be within scope of its IntDef. Is \" + $L)",
+              ValidationException.class,
+              prop.methodName,
+              variableName)
+          .endControlFlow();
+    }
+    StringDef stringDef =
+        findAnnotationByAnnotation(prop.element.getAnnotationMirrors(), StringDef.class);
+    if (stringDef != null) {
+      String[] values = stringDef.value();
+      validateMethod.beginControlFlow("if (!($L))",
+          String.join(" && ",
+              Arrays.stream(values)
+                  .map(s -> "\"" + s + "\".equals(" + variableName + ")")
+                  .collect(Collectors.toList())))
+          .addStatement(
+              "throw new $T(\"$L's value must be within scope of its StringDef. Is \" + $L)",
+              ValidationException.class,
+              prop.methodName,
+              variableName)
+          .endControlFlow();
+    }
   }
 
   private static void addRaveChecks(MethodSpec.Builder validateMethod,
@@ -468,12 +503,18 @@ import static javax.lang.model.element.Modifier.STATIC;
     }
   }
 
-  @Nullable private static <T extends Annotation> T findAnnotation(Set<Annotation> annotations,
+  @Nullable
+  private static <T extends Annotation> T findAnnotationByAnnotation(Collection<? extends
+      AnnotationMirror> annotations,
       Class<T> clazz) {
-    for (Annotation annotation : annotations) {
-      if (annotation.getClass()
-          .equals(clazz)) {
-        return (T) annotation;
+    if (annotations.isEmpty()) return null; // Save an iterator in the common case.
+    for (AnnotationMirror mirror : annotations) {
+      Annotation target = mirror.getAnnotationType()
+          .asElement()
+          .getAnnotation(clazz);
+      if (target != null) {
+        //noinspection unchecked
+        return (T) target;
       }
     }
     return null;
@@ -488,7 +529,7 @@ import static javax.lang.model.element.Modifier.STATIC;
         .build();
     ParameterSpec methodName = ParameterSpec.builder(String.class, "methodName")
         .build();
-    return MethodSpec.methodBuilder("adapter")
+    return MethodSpec.methodBuilder("validator")
         .addModifiers(PRIVATE)
         .addParameters(ImmutableSet.of(inspector, methodName))
         .returns(Validator.class)
