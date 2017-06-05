@@ -77,7 +77,7 @@ final class ClassValidator<T> extends Validator<T> {
         // Look up a type validator for this type.
         Type returnType = Types.resolve(type, rawType, method.getGenericReturnType());
         Set<? extends Annotation> annotations = Util.validationAnnotations(method);
-        Validator<Object> validator = null;
+        Validator<Object> validator;
         ValidatedBy validatedBy = method.getAnnotation(ValidatedBy.class);
         if (validatedBy != null) {
           try {
