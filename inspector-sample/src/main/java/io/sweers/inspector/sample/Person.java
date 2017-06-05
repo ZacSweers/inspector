@@ -5,8 +5,8 @@ import android.support.annotation.Nullable;
 import com.google.auto.value.AutoValue;
 import io.sweers.inspector.Inspector;
 import io.sweers.inspector.Validator;
-import io.sweers.inspector.autovalue.InspectorIgnored;
-import io.sweers.inspector.autovalue.ValidatedBy;
+import io.sweers.inspector.InspectorIgnored;
+import io.sweers.inspector.ValidatedBy;
 import java.util.Date;
 
 @AutoValue public abstract class Person {

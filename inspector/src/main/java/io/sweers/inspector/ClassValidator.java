@@ -72,14 +72,37 @@ final class ClassValidator<T> extends Validator<T> {
       for (final Method method : rawType.getDeclaredMethods()) {
         if (!includeMethod(platformType, method.getModifiers())) continue;
         if (method.getParameterTypes().length != 0) continue;
+        if (method.getAnnotation(InspectorIgnored.class) != null) continue;
 
         // Look up a type validator for this type.
         Type returnType = Types.resolve(type, rawType, method.getGenericReturnType());
         Set<? extends Annotation> annotations = Util.validationAnnotations(method);
-        Validator<Object> validator = inspector.validator(returnType, annotations);
+        Validator<Object> validator = null;
+        ValidatedBy validatedBy = method.getAnnotation(ValidatedBy.class);
+        if (validatedBy != null) {
+          try {
+            //noinspection unchecked
+            validator = (Validator<Object>) validatedBy.value()
+                .newInstance();
+          } catch (InstantiationException e) {
+            throw new RuntimeException("Could not instantiate delegate validator "
+                + validatedBy.value()
+                + " for "
+                + method.getName()
+                + ". Make sure it has a public default constructor.");
+          } catch (IllegalAccessException e) {
+            throw new RuntimeException("Delegate validator "
+                + validatedBy.value()
+                + " for "
+                + method.getName()
+                + " is not accessible. Make sure it has a public default constructor.");
+          }
+        } else {
+          validator = inspector.validator(returnType, annotations);
+        }
 
-        if (!method.getReturnType().isPrimitive()
-            && !Util.hasNullable(method.getDeclaredAnnotations())) {
+        if (!method.getReturnType()
+            .isPrimitive() && !Util.hasNullable(method.getDeclaredAnnotations())) {
           validator = new Validator<Object>() {
             @Override public void validate(Object object) throws ValidationException {
               Object result;
