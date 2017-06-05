@@ -103,6 +103,7 @@ final class ClassValidator<T> extends Validator<T> {
 
         if (!method.getReturnType()
             .isPrimitive() && !Util.hasNullable(method.getDeclaredAnnotations())) {
+            final Validator<Object> originalValidator = validator;
           validator = new Validator<Object>() {
             @Override public void validate(Object object) throws ValidationException {
               Object result;
@@ -119,6 +120,8 @@ final class ClassValidator<T> extends Validator<T> {
                 throw new ValidationException("Returned value of "
                     + method.getName()
                     + "() was null.");
+              } else {
+                originalValidator.validate(object);
               }
             }
           };
