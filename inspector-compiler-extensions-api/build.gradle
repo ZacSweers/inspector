@@ -1,0 +1,25 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven { url deps.build.repositories.plugins }
+  }
+  dependencies {
+    classpath deps.build.gradlePlugins.errorProne
+  }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'net.ltgt.errorprone'
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+dependencies {
+  api project(':inspector')
+  api deps.misc.guava
+  api deps.misc.javapoet
+  api deps.misc.jsr305
+  compileOnly deps.misc.errorProneAnnotations
+
+  errorprone deps.build.errorProne
+}

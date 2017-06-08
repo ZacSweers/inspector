@@ -43,14 +43,16 @@ annotations for custom behavior.
 
 `@ValidatedBy(SomeValidator.class)` - Use this to designate that this should be validated by another validator.
 
-### auto-value-inspector
+### inspector-compiler
 
 Features:
+- Annotation processor that generates validator implementations
+- Supports a service-loader-based extensions API via `InspectorExtension`
 - Works just like auto-value-gson or auto-value-moshi
 - Has support for Android support annotations and RAVE annotations
-  - Will also grep final fields from the top-level AutoValue class for RAVE annotations
 
-Simply add a static `Validator`-returning method to your model.
+Simply add a static `Validator`-returning method to your model and be sure to annotate it with 
+something to look for, such as `@AutoValue` (this can be done automatically via the `inspector-autovalue-compiler-extension`).
 
 ```java
 @AutoValue
@@ -59,22 +61,39 @@ public abstract class Foo {
   public abstract String bar();
   
   public static Validator<Foo> validator(Inspector inspector) {
-    return new AutoValue_Foo.Validator(insepctor);
+    // Generated class is in the same package, prefixed with "Validator_"
+    return new Validator_Foo(insepctor);
   }
 }
 ```
 
-### auto-value-android
+### inspector-android
 
 This is just a for-fun proof of concept of how some non-generated support library annotation validators 
 would look. This unfortunately is not currently possible since support annotations are not RUNTIME retained.
+
+### Usage
+
+Your gradle file could look like this:
+
+```gradle
+depedencies {
+  compileOnly 'io.sweers.inspector:inspector-compiler:x.y.z'
+  
+  // Optional compiler extensions
+  compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'
+  compileOnly 'io.sweers.inspector:inspector-autovalue-compiler-extension:x.y.z'
+  compileOnly 'io.sweers.inspector:inspector-rave-compiler-extension:x.y.z'
+
+  implementation 'io.sweers.inspector:inspector:x.y.z'
+}
+```
 
 ### TODO
 
 - Revisit `AdapterMethodsFactory`.
 - Extract RAVE and support annotations support to pluggable SPIs to AV extension
 - ValidatorFactory generation for the AV extension
-- Should it have an alternative annotation processor to the AV extension? Should the extension be a processor instead?
 
 
 ### Notes

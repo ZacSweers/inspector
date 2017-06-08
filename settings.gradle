@@ -1,6 +1,10 @@
 rootProject.name = 'inspector-root'
-include ':auto-value-inspector'
+include ':compiler-extensions:inspector-android-compiler-extension'
+include ':compiler-extensions:inspector-autovalue-compiler-extension'
+include ':compiler-extensions:inspector-rave-compiler-extension'
 include ':inspector'
 include ':inspector-android'
+include ':inspector-compiler'
+include ':inspector-compiler-extensions-api'
 include ':inspector-sample'
 

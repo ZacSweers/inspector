@@ -4,14 +4,11 @@ buildscript {
     maven { url deps.build.repositories.plugins }
   }
   dependencies {
-    classpath deps.build.gradlePlugins.apt
     classpath deps.build.gradlePlugins.errorProne
   }
 }
 
-apply plugin: 'java'
-apply plugin: 'net.ltgt.apt'
-apply plugin: 'idea'
+apply plugin: 'java-library'
 apply plugin: 'net.ltgt.errorprone'
 
 sourceCompatibility = "1.8"
@@ -22,15 +19,12 @@ repositories {
 }
 
 dependencies {
-  compileOnly project(':inspector-compiler')
-  compileOnly deps.auto.value
+  api project(':inspector-compiler-extensions-api')
+  api deps.misc.guava
+  api deps.misc.javapoet
+  api deps.support.annotations
+  compileOnly deps.auto.service
   compileOnly deps.misc.errorProneAnnotations
 
-  implementation project(':inspector')
-  implementation deps.support.annotations
-
   errorprone deps.build.errorProne
-
-  testCompile deps.test.junit
-  testCompile deps.test.truth
 }

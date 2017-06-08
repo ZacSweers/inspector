@@ -1,22 +1,22 @@
 subprojects {
-    buildscript {
-        repositories {
-            jcenter()
-        }
-    }
-
+  buildscript {
     repositories {
-        jcenter()
+      jcenter()
     }
+  }
+
+  repositories {
+    jcenter()
+  }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.0-rc-1'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+  gradleVersion = '4.0-rc-2'
+  distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }
 
 apply from: 'gradle/dependencies.gradle'
