@@ -102,6 +102,7 @@ depedencies {
   // Optional compiler extensions
   compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'
   compileOnly 'io.sweers.inspector:inspector-autovalue-compiler-extension:x.y.z'
+  compileOnly 'io.sweers.inspector:inspector-nullability-compiler-extension:x.y.z'
   compileOnly 'io.sweers.inspector:inspector-rave-compiler-extension:x.y.z'
 
   implementation 'io.sweers.inspector:inspector:x.y.z'
