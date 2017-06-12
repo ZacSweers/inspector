@@ -202,6 +202,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
     try {
       JavaFile.builder(packageName, validator.build())
+          .skipJavaLangImports(true)
           .build()
           .writeTo(filer);
     } catch (IOException e) {
