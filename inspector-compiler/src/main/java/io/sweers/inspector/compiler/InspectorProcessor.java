@@ -1,7 +1,6 @@
 package io.sweers.inspector.compiler;
 
 import com.google.auto.service.AutoService;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -88,7 +87,10 @@ import static javax.lang.model.element.Modifier.STATIC;
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(AutoValue.class);
+    Set<Element> elements = Sets.newLinkedHashSet();
+    for (TypeElement annotation : annotations) {
+      elements.addAll(roundEnv.getElementsAnnotatedWith(annotation));
+    }
     for (Element element : elements) {
       TypeElement targetClass = (TypeElement) element;
       if (applicable(targetClass)) {
