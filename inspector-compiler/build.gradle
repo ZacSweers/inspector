@@ -31,8 +31,9 @@ dependencies {
   errorprone deps.build.errorProne
 
   testCompile project(':compiler-extensions:inspector-android-compiler-extension')
-  testCompile project(':compiler-extensions:inspector-rave-compiler-extension')
   testCompile project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  testCompile project(':compiler-extensions:inspector-nullability-compiler-extension')
+  testCompile project(':compiler-extensions:inspector-rave-compiler-extension')
   testCompile deps.test.junit
   testCompile deps.test.truth
   testCompile deps.test.compileTesting

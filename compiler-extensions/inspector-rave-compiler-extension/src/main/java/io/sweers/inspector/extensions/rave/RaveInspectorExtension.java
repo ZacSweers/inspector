@@ -16,14 +16,18 @@ import javax.lang.model.type.TypeMirror;
 
 @AutoService(InspectorExtension.class) public final class RaveInspectorExtension
     extends AbstractInspectorExtension {
-  @Override public boolean applicable(ExecutableElement property) {
-    return property.getAnnotation(MustBeTrue.class) != null
-        || property.getAnnotation(MustBeFalse.class) != null;
+  @Override public boolean applicable(Property property) {
+    return property.element.getAnnotation(MustBeTrue.class) != null
+        || property.element.getAnnotation(MustBeFalse.class) != null;
   }
 
   @Override
   public CodeBlock generateValidation(Property prop, String variableName, ParameterSpec value) {
     return addRaveChecks(prop.element, prop.methodName, value);
+  }
+
+  @Override public String toString() {
+    return RaveInspectorExtension.class.getSimpleName();
   }
 
   private static CodeBlock addRaveChecks(ExecutableElement element,

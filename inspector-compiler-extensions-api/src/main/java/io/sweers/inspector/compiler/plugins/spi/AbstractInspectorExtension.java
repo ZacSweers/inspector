@@ -5,7 +5,6 @@ import com.squareup.javapoet.ParameterSpec;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.lang.model.element.ExecutableElement;
 
 /**
  * Empty extension implementation
@@ -16,12 +15,20 @@ public abstract class AbstractInspectorExtension implements InspectorExtension {
     return Collections.emptySet();
   }
 
-  @Override public boolean applicable(ExecutableElement property) {
+  @Override public boolean applicable(Property property) {
     return false;
   }
 
   @Override @Nullable
   public CodeBlock generateValidation(Property prop, String variableName, ParameterSpec value) {
     return null;
+  }
+
+  @Override public Priority priority() {
+    return Priority.NONE;
+  }
+
+  @Override public String toString() {
+    return getClass().getName();
   }
 }

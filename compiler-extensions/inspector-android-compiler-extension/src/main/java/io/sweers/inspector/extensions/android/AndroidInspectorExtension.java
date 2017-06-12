@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ExecutableElement;
 
 @AutoService(InspectorExtension.class) public final class AndroidInspectorExtension
     extends AbstractInspectorExtension {
@@ -34,14 +33,14 @@ import javax.lang.model.element.ExecutableElement;
   private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS_OF_ANNOTATIONS =
       Sets.newLinkedHashSet(Arrays.asList(IntDef.class, StringDef.class));
 
-  @Override public boolean applicable(ExecutableElement property) {
+  @Override public boolean applicable(Property property) {
     for (Class<? extends Annotation> a : SUPPORTED_ANNOTATIONS) {
-      if (property.getAnnotation(a) != null) {
+      if (property.element.getAnnotation(a) != null) {
         return true;
       }
     }
     for (Class<? extends Annotation> a : SUPPORTED_ANNOTATIONS_OF_ANNOTATIONS) {
-      if (findAnnotationByAnnotation(property.getAnnotationMirrors(), a) != null) {
+      if (findAnnotationByAnnotation(property.element.getAnnotationMirrors(), a) != null) {
         return true;
       }
     }
@@ -51,6 +50,10 @@ import javax.lang.model.element.ExecutableElement;
   @Override
   public CodeBlock generateValidation(Property prop, String variableName, ParameterSpec value) {
     return addAndroidChecks(prop, variableName);
+  }
+
+  @Override public String toString() {
+    return AndroidInspectorExtension.class.getSimpleName();
   }
 
   private static CodeBlock addAndroidChecks(Property prop, String variableName) {

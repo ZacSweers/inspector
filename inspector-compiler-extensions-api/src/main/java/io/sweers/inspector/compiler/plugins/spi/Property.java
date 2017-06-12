@@ -79,11 +79,7 @@ public class Property {
   }
 
   public boolean shouldValidate() {
-    return element.getAnnotation(InspectorIgnored.class) == null;
-  }
-
-  public boolean shouldNullCheck() {
-    return !type.isPrimitive() && !annotations.contains("Nullable");
+    return element.getAnnotation(InspectorIgnored.class) == null && validatedBy() == null;
   }
 
   private ImmutableSet<String> buildAnnotations(ExecutableElement element) {

@@ -31,7 +31,7 @@ import java.util.Set;
 
   public abstract String lastName();
 
-  public abstract int[] favoriteNumbers();
+  @SuppressWarnings("mutable") public abstract int[] favoriteNumbers();
 
   public abstract List<String> aList();
 

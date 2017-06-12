@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -231,18 +232,18 @@ import static javax.lang.model.element.Modifier.STATIC;
       constructor.addParameter(type);
     }
 
-    boolean needsAdapterMethod = false;
+    boolean needsValidatorMethod = false;
     for (Map.Entry<Property, FieldSpec> entry : validators.entrySet()) {
       Property prop = entry.getKey();
       FieldSpec field = entry.getValue();
 
-      boolean usesJsonQualifier = false;
+      boolean usesValidationQualifier = false;
       for (AnnotationMirror annotationMirror : prop.element.getAnnotationMirrors()) {
         Element annotationType = annotationMirror.getAnnotationType()
             .asElement();
         if (annotationType.getAnnotation(ValidationQualifier.class) != null) {
-          usesJsonQualifier = true;
-          needsAdapterMethod = true;
+          usesValidationQualifier = true;
+          needsValidatorMethod = true;
         }
       }
       ValidatedBy validatedBy = prop.validatedBy();
@@ -254,7 +255,7 @@ import static javax.lang.model.element.Modifier.STATIC;
           // Let's never speak of this again
           constructor.addStatement("this.$N = new $T()", field, ClassName.get(e.getTypeMirror()));
         }
-      } else if (usesJsonQualifier) {
+      } else if (usesValidationQualifier) {
         constructor.addStatement("this.$N = validator($N, \"$L\")",
             field,
             inspector,
@@ -295,7 +296,7 @@ import static javax.lang.model.element.Modifier.STATIC;
       classBuilder.addTypeVariables(Arrays.asList(genericTypeNames));
     }
 
-    if (needsAdapterMethod) {
+    if (needsValidatorMethod) {
       classBuilder.addMethod(createAdapterMethod(targetClassName));
     }
 
@@ -323,23 +324,21 @@ import static javax.lang.model.element.Modifier.STATIC;
           Property prop = entry.getKey();
           FieldSpec validator = entry.getValue();
           String name = allocator.newName(entry.getKey().methodName);
-          validateMethod.addStatement("$T $L = $N.$L()", prop.type, name, value, prop.methodName);
-          if (prop.shouldNullCheck()) {
-            validateMethod.beginControlFlow("if ($L == null)", name)
-                .addStatement("throw new $T($S)",
-                    ValidationException.class,
-                    prop.methodName + "() is not null but returns a null")
-                .endControlFlow();
-          }
-          validateMethod.addStatement("$N.validate($L)", validator, name);
+          validateMethod.addComment("Begin validation for \"$L()\"", prop.methodName)
+              .addStatement("$T $L = $N.$L()", prop.type, name, value, prop.methodName)
+              .addCode("\n");
           extensions.stream()
-              .filter(e -> e.applicable(prop.element))
+              .sorted(Comparator.comparing(InspectorExtension::priority))
+              .filter(e -> e.applicable(prop))
               .forEach(e -> {
                 CodeBlock block = e.generateValidation(prop, name, value);
                 if (block != null) {
-                  validateMethod.addCode(block);
+                  validateMethod.addComment("Validations contributed by $S", e.toString())
+                      .addCode(block);
                 }
               });
+          validateMethod.addStatement("$N.validate($L)", validator, name)
+              .addCode("\n");
         });
 
     return validateMethod.build();
