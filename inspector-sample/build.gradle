@@ -23,8 +23,13 @@ repositories {
 
 dependencies {
   compileOnly project(':inspector-compiler')
+  compileOnly project(':inspector-factory-compiler')
+  compileOnly project(':compiler-extensions:inspector-android-compiler-extension')
+  compileOnly project(':compiler-extensions:inspector-rave-compiler-extension')
+  compileOnly project(':compiler-extensions:inspector-autovalue-compiler-extension')
   compileOnly deps.auto.value
   compileOnly deps.misc.errorProneAnnotations
+  compileOnly deps.misc.rave
 
   implementation project(':inspector')
   implementation deps.support.annotations

@@ -48,6 +48,7 @@ annotations for custom behavior.
 Features:
 - Annotation processor that generates validator implementations
 - Supports a service-loader-based extensions API via `InspectorExtension`
+  - First party implementations are under the `compiler-extensions` directory
 - Works just like auto-value-gson or auto-value-moshi
 - Has support for Android support annotations and RAVE annotations
 
@@ -66,6 +67,24 @@ public abstract class Foo {
   }
 }
 ```
+
+If you have a lot of these, you may not want to manually have to hook all these up to an inspector instance. To solve 
+this, you can use the `inspectory-factory-compiler` annotation processor to generate a factory implementation. Simply stub
+your factory class like so:
+
+```java
+@InspectorFactory(include = AutoValue.class) 
+public abstract class MyFactory implements Validator.Factory {
+  public static MyFactory create() {
+    return new InspectorFactory_MyFactory();
+  }
+}
+```
+
+- Your class must implement ValidatorFactory and not be `final`.
+- You mark which annotations you want to target your factory to, such as `@AutoValue`.
+- An `InspectorFactory_<YourClassName>` will be generated in the same package for referencing with an implementation
+ of the `create()` method.
 
 ### inspector-android
 

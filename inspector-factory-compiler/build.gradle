@@ -1,0 +1,34 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven { url deps.build.repositories.plugins }
+  }
+  dependencies {
+    classpath deps.build.gradlePlugins.errorProne
+  }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'net.ltgt.errorprone'
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+dependencies {
+  api project(':inspector')
+
+  compileOnly deps.auto.service
+  implementation deps.auto.value
+  implementation deps.misc.guava
+  implementation deps.misc.javapoet
+  compileOnly deps.misc.errorProneAnnotations
+
+  errorprone deps.build.errorProne
+
+  testCompile project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  testCompile project(':inspector-compiler')
+  testCompile deps.test.junit
+  testCompile deps.test.truth
+  testCompile deps.test.compileTesting
+  testCompile deps.test.toolsJar
+}
