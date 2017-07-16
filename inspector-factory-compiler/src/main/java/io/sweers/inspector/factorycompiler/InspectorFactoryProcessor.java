@@ -2,7 +2,6 @@ package io.sweers.inspector.factorycompiler;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
@@ -91,9 +91,10 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         error(factory, "Must implement Validator.Factory!");
       }
       List<TypeElement> validationTargets =
-          getTargetClasses(factory.getAnnotation(InspectorFactory.class)).stream()
-              .flatMap(targetClass -> roundEnv.getElementsAnnotatedWith(targetClass)
-                  .stream())
+          getTargetClasses(factory.getAnnotation(InspectorFactory.class)).flatMap(targetClass ->
+              roundEnv.getElementsAnnotatedWith(
+              targetClass)
+              .stream())
               .map((Function<Element, TypeElement>) element -> {
                 if (!(element instanceof TypeElement)) {
                   throw new UnsupportedOperationException(
@@ -242,20 +243,12 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     throw new AssertionError();
   }
 
-  private List<TypeElement> getTargetClasses(InspectorFactory factory) {
+  private Stream<TypeElement> getTargetClasses(InspectorFactory factory) {
     try {
       factory.include();
     } catch (MirroredTypesException e) {
-      List<TypeElement> elements = Lists.newArrayList();
-      for (TypeMirror mirror : e.getTypeMirrors()) {
-        elements.add(elementUtils.getTypeElement(mirror.toString()));
-      }
-      return elements;
-      // This doesn't work on CI for some reason
-      //return e.getTypeMirrors()
-      //    .stream()
-      //    .map(TypeMirror::toString)
-      //    .map(name -> elementUtils.getTypeElement(name));
+      return e.getTypeMirrors().<TypeMirror>stream().map(TypeMirror::toString)
+          .map(name -> elementUtils.getTypeElement(name));
     }
     throw new RuntimeException(
         "Could not inspect factory includes. Java annotation processing is weird.");
