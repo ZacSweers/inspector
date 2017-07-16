@@ -193,11 +193,6 @@ public final class Inspector {
       return this;
     }
 
-    //public Builder add(Object adapter) {
-    //  if (adapter == null) throw new IllegalArgumentException("adapter == null");
-    //  return add(AdapterMethodsFactory.get(adapter));
-    //}
-
     Builder addAll(List<Validator.Factory> factories) {
       this.factories.addAll(factories);
       return this;
