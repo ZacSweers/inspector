@@ -28,9 +28,9 @@ final class ArrayValidator extends Validator<Object> {
     this.elementValidator = elementValidator;
   }
 
-  @Override public void validate(Object object) throws ValidationException {
-    for (int i = 0, size = Array.getLength(object); i < size; i++) {
-      elementValidator.validate(Array.get(object, i));
+  @Override public void validate(Object validationTarget) throws ValidationException {
+    for (int i = 0, size = Array.getLength(validationTarget); i < size; i++) {
+      elementValidator.validate(Array.get(validationTarget, i));
     }
   }
 

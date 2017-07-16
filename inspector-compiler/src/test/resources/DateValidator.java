@@ -5,7 +5,7 @@ import io.sweers.inspector.Validator;
 import java.util.Date;
 
 public final class DateValidator extends Validator<Date> {
-  @Override public void validate(Date object) throws ValidationException {
+  @Override public void validate(Date date) throws ValidationException {
 
   }
 }
