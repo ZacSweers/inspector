@@ -4,7 +4,7 @@ jdk:
   - oraclejdk8
 
 script:
-  - ./gradlew clean build
+  - ./gradlew clean build --stacktrace
 
 after_success:
   - .buildscript/deploy_snapshot.sh
