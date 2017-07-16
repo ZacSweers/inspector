@@ -3,6 +3,7 @@ package io.sweers.inspector.extensions.nullability;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
 import io.sweers.inspector.ValidationException;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.Property;
@@ -11,7 +12,9 @@ import io.sweers.inspector.compiler.plugins.spi.Property;
     implements InspectorExtension {
 
   @Override public boolean applicable(Property property) {
-    return !property.type.isPrimitive() && !property.annotations.contains("Nullable");
+    return !property.type.isPrimitive()
+        && !property.type.equals(TypeName.VOID.box())
+        && !property.annotations.contains("Nullable");
   }
 
   @Override
