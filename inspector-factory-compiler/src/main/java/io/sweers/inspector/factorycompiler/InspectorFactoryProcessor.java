@@ -247,6 +247,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     try {
       factory.include();
     } catch (MirroredTypesException e) {
+      //noinspection Convert2Lambda this doesn't work on CI as a lambda/method ref ಠ_ಠ
       return e.getTypeMirrors()
           .stream()
           .map(new Function<TypeMirror, String>() {
