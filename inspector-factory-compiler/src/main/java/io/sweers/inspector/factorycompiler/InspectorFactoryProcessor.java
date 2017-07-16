@@ -62,13 +62,11 @@ import static javax.tools.Diagnostic.Kind.ERROR;
   private static final ParameterizedTypeName FACTORY_RETURN_TYPE_NAME =
       ParameterizedTypeName.get(ADAPTER_CLASS_NAME, WildcardTypeName.subtypeOf(TypeName.OBJECT));
 
-  private ProcessingEnvironment processingEnv;
   private Elements elementUtils;
   private Types typeUtils;
 
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
-    this.processingEnv = processingEnv;
     this.elementUtils = processingEnv.getElementUtils();
     this.typeUtils = processingEnv.getTypeUtils();
   }
