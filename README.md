@@ -119,10 +119,6 @@ depedencies {
 }
 ```
 
-### TODO
-
-- Revisit `AdapterMethodsFactory`.
-
 ### Notes
 
 This library is heavily influenced by Moshi and RAVE.
