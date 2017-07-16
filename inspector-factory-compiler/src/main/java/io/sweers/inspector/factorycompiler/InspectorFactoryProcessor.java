@@ -243,11 +243,14 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     throw new AssertionError();
   }
 
+  @SuppressWarnings("UnnecessaryTypeArgument")
   private Stream<TypeElement> getTargetClasses(InspectorFactory factory) {
     try {
       factory.include();
     } catch (MirroredTypesException e) {
-      return e.getTypeMirrors().<TypeMirror>stream().map(TypeMirror::toString)
+      return e.getTypeMirrors()
+          .<TypeMirror>stream()
+          .map(TypeMirror::toString)
           .map(name -> elementUtils.getTypeElement(name));
     }
     throw new RuntimeException(
