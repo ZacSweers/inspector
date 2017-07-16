@@ -39,3 +39,5 @@ dependencies {
   testCompile deps.test.compileTesting
   testCompile deps.test.toolsJar
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
