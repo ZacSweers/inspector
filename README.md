@@ -46,8 +46,7 @@ annotations to create custom validators with interesting implementations.
 `@InspectorExcluded` - Use this to exclude methods from validation.
 
 `@ValidatedBy(SomeValidator.class)` - Use this to designate that this should be validated by 
-a specified validator. Note that if you use this reflectively, it must also be reflectively instantiable 
-or present in the Inspector instance's validators list.
+a specified validator. Note that if you use this reflectively, it must also be reflectively instantiable.
 
 ### inspector-compiler
 
