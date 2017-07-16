@@ -1,6 +1,8 @@
 Inspector
 ===========
 
+[![Build Status](https://travis-ci.org/hzsweers/inspector.svg?branch=master)](https://travis-ci.org/hzsweers/inspector)
+
 Inspector is a tiny class validation tool that has a tiny, flexible, and powerful API.
 
 If you've ever used Moshi or GSON, it should feel very familiar.
@@ -105,8 +107,14 @@ would look. This unfortunately is not currently possible since support annotatio
 
 Your gradle file could look like this:
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.sweers.inspector/inspector.svg)](https://mvnrepository.com/artifact/io.sweers.inspector/inspector)
+
 ```gradle
 depedencies {
+  // Core Inspector library
+  implementation 'io.sweers.inspector:inspector:x.y.z'
+  
+  // Compiler to generate validators
   compileOnly 'io.sweers.inspector:inspector-compiler:x.y.z'
   
   // Optional compiler extensions
@@ -114,8 +122,6 @@ depedencies {
   compileOnly 'io.sweers.inspector:inspector-autovalue-compiler-extension:x.y.z'
   compileOnly 'io.sweers.inspector:inspector-nullability-compiler-extension:x.y.z'
   compileOnly 'io.sweers.inspector:inspector-rave-compiler-extension:x.y.z'
-
-  implementation 'io.sweers.inspector:inspector:x.y.z'
 }
 ```
 
