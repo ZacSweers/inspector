@@ -33,7 +33,8 @@ final class StandardValidators {
     }
   };
 
-  private static final Validator<Object> NO_OP_VALIDATOR = new Validator<Object>() {
+  @SuppressWarnings("WeakerAccess") // Synthetic accessor
+  static final Validator<Object> NO_OP_VALIDATOR = new Validator<Object>() {
     @Override public void validate(Object object) throws ValidationException {
       // Nothing to do
     }
