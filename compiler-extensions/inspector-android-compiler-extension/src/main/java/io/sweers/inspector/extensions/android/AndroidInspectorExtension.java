@@ -13,7 +13,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import io.sweers.inspector.ValidationException;
-import io.sweers.inspector.compiler.plugins.spi.AbstractInspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.Property;
 import java.lang.annotation.Annotation;
@@ -25,7 +24,7 @@ import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
 
 @AutoService(InspectorExtension.class) public final class AndroidInspectorExtension
-    extends AbstractInspectorExtension {
+    implements InspectorExtension {
 
   private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS =
       Sets.newLinkedHashSet(Arrays.asList(FloatRange.class, IntRange.class, Size.class));

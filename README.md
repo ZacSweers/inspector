@@ -121,6 +121,8 @@ depedencies {
 
 ### Notes
 
+See subprojects for more detailed READMEs about specific artifacts.
+
 This library is heavily influenced by Moshi and RAVE.
 
 License

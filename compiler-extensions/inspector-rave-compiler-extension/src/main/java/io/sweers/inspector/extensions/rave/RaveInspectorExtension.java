@@ -7,7 +7,6 @@ import com.squareup.javapoet.TypeName;
 import com.uber.rave.annotation.MustBeFalse;
 import com.uber.rave.annotation.MustBeTrue;
 import io.sweers.inspector.ValidationException;
-import io.sweers.inspector.compiler.plugins.spi.AbstractInspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.Property;
 import java.util.Objects;
@@ -15,7 +14,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 
 @AutoService(InspectorExtension.class) public final class RaveInspectorExtension
-    extends AbstractInspectorExtension {
+    implements InspectorExtension {
   @Override public boolean applicable(Property property) {
     return property.element.getAnnotation(MustBeTrue.class) != null
         || property.element.getAnnotation(MustBeFalse.class) != null;

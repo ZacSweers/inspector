@@ -4,12 +4,11 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterSpec;
 import io.sweers.inspector.ValidationException;
-import io.sweers.inspector.compiler.plugins.spi.AbstractInspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.Property;
 
 @AutoService(InspectorExtension.class) public final class NullabilityInspectorExtension
-    extends AbstractInspectorExtension {
+    implements InspectorExtension {
 
   @Override public boolean applicable(Property property) {
     return !property.type.isPrimitive() && !property.annotations.contains("Nullable");

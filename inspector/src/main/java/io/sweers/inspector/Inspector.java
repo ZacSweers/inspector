@@ -42,15 +42,19 @@ public final class Inspector {
     return validator(type, Util.NO_ANNOTATIONS);
   }
 
+  /** Returns a validator for {@code type}, creating it if necessary. */
   public <T> Validator<T> validator(Class<T> type) {
     return validator(type, Util.NO_ANNOTATIONS);
   }
 
+
+  /** Returns a validator for {@code type} with {@code annotationType}, creating it if necessary. */
   public <T> Validator<T> validator(Type type, Class<? extends Annotation> annotationType) {
     return validator(type,
         Collections.singleton(Types.createValidationQualifierImplementation(annotationType)));
   }
 
+  /** Returns a validator for {@code type} and {@code annotations}, creating it if necessary. */
   @SuppressWarnings("unchecked") // Factories are required to return only matching Validators.
   public <T> Validator<T> validator(Type type, Set<? extends Annotation> annotations) {
     type = Types.canonicalize(type);
@@ -101,6 +105,10 @@ public final class Inspector {
     throw new IllegalArgumentException("No Validator for " + type + " annotated " + annotations);
   }
 
+
+  /**
+   * Returns a validator for {@code type} and {@code annotations}, always creating a new one and
+   * skipping past {@code skipPast} for creation. */
   @SuppressWarnings("unchecked") // Factories are required to return only matching Validators.
   public <T> Validator<T> nextValidator(Validator.Factory skipPast,
       Type type,
@@ -210,7 +218,7 @@ public final class Inspector {
    */
   private static class DeferredAdapter<T> extends Validator<T> {
     @Nullable Object cacheKey;
-    private @Nullable Validator<T> delegate;
+    @Nullable private Validator<T> delegate;
 
     DeferredAdapter(Object cacheKey) {
       this.cacheKey = cacheKey;
