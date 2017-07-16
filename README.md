@@ -122,7 +122,6 @@ depedencies {
 ### TODO
 
 - Revisit `AdapterMethodsFactory`.
-- Extract runtime nullability checker to pluggable implementation
 
 ### Notes
 
