@@ -19,9 +19,9 @@ Usage looks like this:
 
 ```java
 Inspector inspector = new Inspector.Builder()
-    .add(...)  // Whatever you want!
     .add(Foo.class, new FooValidator())
     .add(BarValidator.FACTORY)
+    .add(...)  // Whatever you want!
     .build();
 
 boolean isValid = inspector.validator(Foo.class).isValid(myFooStance);
