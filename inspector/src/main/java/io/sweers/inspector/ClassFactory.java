@@ -29,6 +29,7 @@ abstract class ClassFactory<T> {
         @Override public T newInstance() throws IllegalAccessException, InvocationTargetException,
             InstantiationException {
           Object[] args = null;
+          //noinspection ConstantConditions because we want it to think it's an array to avoid vararg cost
           return (T) constructor.newInstance(args);
         }
         @Override public String toString() {

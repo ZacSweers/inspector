@@ -134,7 +134,7 @@ final class ClassValidator<T> extends Validator<T> {
 
         // Store it using the method's name. If there was already a method with this name, fail!
         String name = method.getName();
-        MethodBinding<Object> methodBinding = new MethodBinding<>(name, method, validator);
+        MethodBinding<Object> methodBinding = new MethodBinding<>(method, validator);
         MethodBinding<?> replaced = methodBindings.put(name, methodBinding);
         if (replaced != null) {
           throw new IllegalArgumentException("Conflicting methods:\n"
@@ -149,8 +149,8 @@ final class ClassValidator<T> extends Validator<T> {
 
     /** Returns true if methods with {@code modifiers} are included in the emitted validator. */
     private boolean includeMethod(boolean platformType, int modifiers) {
-      if (Modifier.isStatic(modifiers)) return false;
-      return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers) || !platformType;
+      return !Modifier.isStatic(modifiers) && (Modifier.isPublic(modifiers)
+          || Modifier.isProtected(modifiers) || !platformType);
     }
   };
 
@@ -191,12 +191,10 @@ final class ClassValidator<T> extends Validator<T> {
   }
 
   static class MethodBinding<T> {
-    final String name;
     final Method method;
     final Validator<T> validator;
 
-    MethodBinding(String name, Method method, Validator<T> validator) {
-      this.name = name;
+    MethodBinding(Method method, Validator<T> validator) {
       this.method = method;
       this.validator = validator;
     }

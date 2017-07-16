@@ -12,6 +12,12 @@ import javax.annotation.Nullable;
  */
 public abstract class Validator<T> {
 
+  /**
+   * Validates a given {@code object} instance
+   *
+   * @param object the instance
+   * @throws ValidationException upon invalidation
+   */
   public abstract void validate(T object) throws ValidationException;
 
   public final boolean isValid(T object) {
@@ -23,6 +29,9 @@ public abstract class Validator<T> {
     }
   }
 
+  /**
+   * @return a nullsafe validator that ignores null instances.
+   */
   public Validator<T> nullSafe() {
     final Validator<T> delegate = this;
     return new Validator<T>() {

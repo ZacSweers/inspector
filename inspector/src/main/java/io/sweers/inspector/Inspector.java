@@ -69,8 +69,11 @@ public final class Inspector {
     // Short-circuit if this is a reentrant call.
     List<DeferredAdapter<?>> deferredAdapters = reentrantCalls.get();
     if (deferredAdapters != null) {
-      for (int i = 0, size = deferredAdapters.size(); i < size; i++) {
-        DeferredAdapter<?> deferredAdapter = deferredAdapters.get(i);
+      for (DeferredAdapter<?> deferredAdapter : deferredAdapters) {
+        if (deferredAdapter.cacheKey == null) {
+          // not ready
+          continue;
+        }
         if (deferredAdapter.cacheKey.equals(cacheKey)) {
           return (Validator<T>) deferredAdapter;
         }
@@ -84,9 +87,8 @@ public final class Inspector {
     DeferredAdapter<T> deferredAdapter = new DeferredAdapter<>(cacheKey);
     deferredAdapters.add(deferredAdapter);
     try {
-      for (int i = 0, size = factories.size(); i < size; i++) {
-        Validator<T> result = (Validator<T>) factories.get(i)
-            .create(type, annotations, this);
+      for (Validator.Factory factory : factories) {
+        Validator<T> result = (Validator<T>) factory.create(type, annotations, this);
         if (result != null) {
           deferredAdapter.ready(result);
           synchronized (adapterCache) {
