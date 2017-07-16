@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
@@ -165,15 +166,20 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         addControlFlowGeneric(generics, elementTypeName, element, numGenerics);
         numGenerics++;
       } else {
-        if (classes == null) {
-          classes = CodeBlock.builder();
-        }
-
-        addControlFlow(classes, CodeBlock.of("$N", type), elementTypeName, numClasses);
-        numClasses++;
-
         ExecutableElement jsonAdapterMethod = getValidatorMethod(element);
-        classes.addStatement("return $T.$L($N)", element, jsonAdapterMethod.getSimpleName(), moshi);
+        if (jsonAdapterMethod != null) {
+          if (classes == null) {
+            classes = CodeBlock.builder();
+          }
+
+          addControlFlow(classes, CodeBlock.of("$N", type), elementTypeName, numClasses);
+          numClasses++;
+
+          classes.addStatement("return $T.$L($N)",
+              element,
+              jsonAdapterMethod.getSimpleName(),
+              moshi);
+        }
       }
     }
 
@@ -198,20 +204,22 @@ import static javax.tools.Diagnostic.Kind.ERROR;
       TypeName elementTypeName,
       Element element,
       int numGenerics) {
-    TypeName typeName = ((ParameterizedTypeName) elementTypeName).rawType;
-    CodeBlock typeBlock = CodeBlock.of("rawType");
-
-    addControlFlow(block, typeBlock, typeName, numGenerics);
-
     ExecutableElement jsonAdapterMethod = getValidatorMethod(element);
-    if (jsonAdapterMethod.getParameters()
-        .size() > 1) {
-      block.addStatement("return $L.$L($N, (($T) $N).getActualTypeArguments())",
-          element.getSimpleName(),
-          jsonAdapterMethod.getSimpleName(),
-          INSPECTOR_SPEC,
-          ParameterizedType.class,
-          TYPE_SPEC);
+    if (jsonAdapterMethod != null) {
+      TypeName typeName = ((ParameterizedTypeName) elementTypeName).rawType;
+      CodeBlock typeBlock = CodeBlock.of("rawType");
+
+      addControlFlow(block, typeBlock, typeName, numGenerics);
+
+      if (jsonAdapterMethod.getParameters()
+          .size() > 1) {
+        block.addStatement("return $L.$L($N, (($T) $N).getActualTypeArguments())",
+            element.getSimpleName(),
+            jsonAdapterMethod.getSimpleName(),
+            INSPECTOR_SPEC,
+            ParameterizedType.class,
+            TYPE_SPEC);
+      }
     }
   }
 
@@ -226,7 +234,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     }
   }
 
-  private ExecutableElement getValidatorMethod(Element element) {
+  @Nullable private ExecutableElement getValidatorMethod(Element element) {
     ParameterizedTypeName validatorType =
         ParameterizedTypeName.get(ClassName.get(Validator.class), TypeName.get(element.asType()));
     for (ExecutableElement method : ElementFilter.methodsIn(element.getEnclosedElements())) {
@@ -240,7 +248,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         }
       }
     }
-    throw new AssertionError();
+    return null;
   }
 
   private Stream<TypeElement> getTargetClasses(InspectorFactory factory) {
