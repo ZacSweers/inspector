@@ -114,8 +114,14 @@ depedencies {
   // Core Inspector library
   implementation 'io.sweers.inspector:inspector:x.y.z'
   
-  // Compiler to generate validators
+  // Compiler to generate validators, in a java project
   compileOnly 'io.sweers.inspector:inspector-compiler:x.y.z'
+  
+  // Or Android
+  apt 'io.sweers.inspector:inspector-compiler:x.y.z'
+  
+  // Or Kotlin (± Android)
+  kapt 'io.sweers.inspector:inspector-compiler:x.y.z'
   
   // Optional compiler extensions
   compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'

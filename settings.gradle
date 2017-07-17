@@ -8,5 +8,6 @@ include ':inspector-android'
 include ':inspector-compiler'
 include ':inspector-compiler-extensions-api'
 include ':inspector-factory-compiler'
+include ':inspector-factory-compiler-annotations'
 include ':inspector-sample'
 
