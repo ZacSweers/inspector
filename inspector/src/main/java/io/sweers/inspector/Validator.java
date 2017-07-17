@@ -13,12 +13,12 @@ import javax.annotation.Nullable;
 public abstract class Validator<T> {
 
   /**
-   * Validates a given {@code object} instance
+   * Validates a given {@code t} instance
    *
-   * @param validationTarget the instance
+   * @param t the instance
    * @throws ValidationException upon invalidation
    */
-  public abstract void validate(T validationTarget) throws ValidationException;
+  public abstract void validate(T t) throws ValidationException;
 
   public final boolean isValid(T validationTarget) {
     try {
