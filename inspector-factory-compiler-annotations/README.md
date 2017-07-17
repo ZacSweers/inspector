@@ -7,6 +7,7 @@ placing the full annotation processor in the factory compiler artifact on your c
 
 See the `inspector-factory-compiler` README for full documentation.
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.sweers.inspector/inspector-factory-compiler-annotations.svg)](https://mvnrepository.com/artifact/io.sweers.inspector/inspector-factory-compiler-annotations)
 ```gradle
 implementation 'io.sweers.inspector:inspector-factory-compiler-annotations:x.y.z'
 ```

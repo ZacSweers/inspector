@@ -12,6 +12,7 @@ Supported annotations:
 
 Note that nullability annotations are not supported here. Use the `inspector-nullability-compiler-extension` instead.
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.sweers.inspector/inspector-android-compiler-extension.svg)](https://mvnrepository.com/artifact/io.sweers.inspector/inspector-android-compiler-extension)
 ```gradle
 compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'
 ```

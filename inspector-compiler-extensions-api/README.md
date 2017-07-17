@@ -38,6 +38,7 @@ public final class MyInspectorExtension extends AbstractInspectorExtension {
 }
 ```
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.sweers.inspector/inspector-compiler-extensions-api.svg)](https://mvnrepository.com/artifact/io.sweers.inspector/inspector-compiler-extensions-api)
 ```gradle
 implementation 'io.sweers.inspector:inspector-compiler-extensions-api:x.y.z'
 ```
