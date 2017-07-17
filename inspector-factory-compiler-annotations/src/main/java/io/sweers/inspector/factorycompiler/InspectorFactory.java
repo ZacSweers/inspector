@@ -1,5 +1,6 @@
-package io.sweers.inspector;
+package io.sweers.inspector.factorycompiler;
 
+import io.sweers.inspector.Validator;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

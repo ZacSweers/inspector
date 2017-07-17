@@ -12,7 +12,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 import io.sweers.inspector.Inspector;
-import io.sweers.inspector.InspectorFactory;
 import io.sweers.inspector.Validator;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
