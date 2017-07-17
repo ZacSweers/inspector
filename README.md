@@ -119,11 +119,9 @@ depedencies {
   
   // Or Android
   apt 'io.sweers.inspector:inspector-compiler:x.y.z'
-  compileOnly 'io.sweers.inspector:inspector-compiler-annotations:x.y.z'
   
   // Or Kotlin (± Android)
   kapt 'io.sweers.inspector:inspector-compiler:x.y.z'
-  compileOnly 'io.sweers.inspector:inspector-compiler-annotations:x.y.z'
   
   // Optional compiler extensions
   compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'
