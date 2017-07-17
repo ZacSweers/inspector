@@ -105,10 +105,10 @@ final class ClassValidator<T> extends Validator<T> {
             .isPrimitive() && !Util.hasNullable(method.getDeclaredAnnotations())) {
             final Validator<Object> originalValidator = validator;
           validator = new Validator<Object>() {
-            @Override public void validate(Object object) throws ValidationException {
+            @Override public void validate(Object validationTarget) throws ValidationException {
               Object result;
               try {
-                result = method.invoke(object);
+                result = method.invoke(validationTarget);
               } catch (IllegalAccessException e) {
                 // Shouldn't happen, but just in case
                 throw new ValidationException(method.getName() + " is inaccessible.", e);
@@ -121,7 +121,7 @@ final class ClassValidator<T> extends Validator<T> {
                     + method.getName()
                     + "() was null.");
               } else {
-                originalValidator.validate(object);
+                originalValidator.validate(validationTarget);
               }
             }
           };
@@ -180,10 +180,10 @@ final class ClassValidator<T> extends Validator<T> {
     return "Validator(" + classFactory + ")";
   }
 
-  @Override public void validate(T object) throws ValidationException {
+  @Override public void validate(T validationTarget) throws ValidationException {
     try {
       for (MethodBinding<?> methodBinding : methodsArray) {
-        methodBinding.validate(object);
+        methodBinding.validate(validationTarget);
       }
     } catch (IllegalAccessException e) {
       throw new AssertionError();
@@ -199,8 +199,8 @@ final class ClassValidator<T> extends Validator<T> {
       this.validator = validator;
     }
 
-    @SuppressWarnings("unchecked") void validate(Object object) throws IllegalAccessException {
-      validator.validate((T) object);
+    @SuppressWarnings("unchecked") void validate(Object validationTarget) throws IllegalAccessException {
+      validator.validate((T) validationTarget);
     }
   }
 }

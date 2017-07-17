@@ -34,8 +34,8 @@ class CollectionValidator<C extends Collection<T>, T> extends Validator<C> {
     return new CollectionValidator<>(elementValidator);
   }
 
-  @Override public void validate(C object) throws ValidationException {
-    for (T element : object) {
+  @Override public void validate(C validationTarget) throws ValidationException {
+    for (T element : validationTarget) {
       elementValidator.validate(element);
     }
   }

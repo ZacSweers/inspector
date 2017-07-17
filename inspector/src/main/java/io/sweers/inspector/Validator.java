@@ -8,21 +8,21 @@ import javax.annotation.Nullable;
 /**
  * Validates objects of a given type.
  *
- * @param <T> the object type to validate.
+ * @param <T> the type to validate.
  */
 public abstract class Validator<T> {
 
   /**
    * Validates a given {@code object} instance
    *
-   * @param object the instance
+   * @param validationTarget the instance
    * @throws ValidationException upon invalidation
    */
-  public abstract void validate(T object) throws ValidationException;
+  public abstract void validate(T validationTarget) throws ValidationException;
 
-  public final boolean isValid(T object) {
+  public final boolean isValid(T validationTarget) {
     try {
-      validate(object);
+      validate(validationTarget);
       return true;
     } catch (ValidationException e) {
       return false;
@@ -35,9 +35,9 @@ public abstract class Validator<T> {
   public Validator<T> nullSafe() {
     final Validator<T> delegate = this;
     return new Validator<T>() {
-      @Override public void validate(T object) throws ValidationException {
-        if (object != null) {
-          delegate.validate(object);
+      @Override public void validate(T validationTarget) throws ValidationException {
+        if (validationTarget != null) {
+          delegate.validate(validationTarget);
         }
       }
 

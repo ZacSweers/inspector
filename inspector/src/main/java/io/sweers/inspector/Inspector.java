@@ -226,9 +226,9 @@ public final class Inspector {
       this.cacheKey = null;
     }
 
-    @Override public void validate(T object) throws ValidationException {
+    @Override public void validate(T validationTarget) throws ValidationException {
       if (delegate == null) throw new IllegalStateException("Validator isn't ready");
-      delegate.validate(object);
+      delegate.validate(validationTarget);
     }
   }
 }
