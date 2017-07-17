@@ -1,9 +1,10 @@
 package io.sweers.inspector;
 
 /**
- *
+ * Base class for validation exceptions. You can use this directly with your own message if you
+ * want, or subclass it to put your own information.
  */
-public final class ValidationException extends RuntimeException {
+public class ValidationException extends RuntimeException {
   public ValidationException() {
   }
 
