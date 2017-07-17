@@ -23,6 +23,7 @@ public abstract class MyInspectorFactory implements Validator.Factory {
 }
 ```
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.sweers.inspector/inspector-factory-compiler.svg)](https://mvnrepository.com/artifact/io.sweers.inspector/inspector-factory-compiler)
 ```gradle
 implementation 'io.sweers.inspector:inspector-factory-compiler:x.y.z'
 ```

@@ -8,6 +8,7 @@ See the `inspector-compiler-extensions-api` for information on writing your own 
 `compiler-extensions` directory for first-party extensions.
 
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.sweers.inspector/inspector-compiler.svg)](https://mvnrepository.com/artifact/io.sweers.inspector/inspector-compiler)
 ```gradle
 compileOnly 'io.sweers.inspector:inspector-compiler:x.y.z'
 ```
