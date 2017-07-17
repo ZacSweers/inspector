@@ -16,6 +16,7 @@ targetCompatibility = "1.8"
 
 dependencies {
   api project(':inspector')
+  api project(':inspector-factory-compiler-annotations')
 
   compileOnly deps.auto.service
   implementation deps.auto.value
