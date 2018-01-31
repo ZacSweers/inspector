@@ -30,6 +30,7 @@ dependencies {
   compileOnly deps.auto.value
   compileOnly deps.misc.errorProneAnnotations
   compileOnly deps.misc.rave
+  compileOnly deps.misc.retrofit
 
   implementation project(':inspector')
   implementation deps.support.annotations
