@@ -1,13 +1,13 @@
 import org.gradle.internal.jvm.Jvm
 
 def versions = [
-    errorProne: '2.0.21'
+    errorProne: '2.2.0'
 ]
 
 ext.deps = [
     auto: [
-        value: "com.google.auto.value:auto-value:1.4.1",
-        service: "com.google.auto.service:auto-service:1.0-rc3"
+        value: "com.google.auto.value:auto-value:1.5.3",
+        service: "com.google.auto.service:auto-service:1.0-rc4"
     ],
     build: [
         errorProne: "com.google.errorprone:error_prone_core:${versions.errorProne}",
@@ -16,25 +16,25 @@ ext.deps = [
             plugins: 'https://plugins.gradle.org/m2/'
         ],
         gradlePlugins: [
-            apt: 'net.ltgt.gradle:gradle-apt-plugin:0.10',
-            errorProne: 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.10'
+            apt: 'net.ltgt.gradle:gradle-apt-plugin:0.13',
+            errorProne: 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
         ]
     ],
     misc: [
-        guava: "com.google.guava:guava:22.0",
+        guava: "com.google.guava:guava:23.6-jre",
         javapoet: "com.squareup:javapoet:1.9.0",
         errorProneAnnotations: "com.google.errorprone:error_prone_annotations:${versions.errorProne}",
         jsr305: 'com.google.code.findbugs:jsr305:3.0.2',
         rave: 'com.uber:rave:2.0.0'
     ],
     support: [
-        annotations: "com.android.support:support-annotations:25.3.1"
+        annotations: "com.android.support:support-annotations:27.0.2"
     ],
     test: [
-        compileTesting: 'com.google.testing.compile:compile-testing:0.11',
+        compileTesting: 'com.google.testing.compile:compile-testing:0.13',
         junit: 'junit:junit:4.12',
         toolsJar: files(Jvm.current().getToolsJar()),
-        truth: 'com.google.truth:truth:0.34'
+        truth: 'com.google.truth:truth:0.39'
     ],
     versions: versions,
 ]
