@@ -3,8 +3,8 @@ plugins {
   id 'net.ltgt.errorprone' version '0.0.13'
 }
 
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
   api project(':inspector')

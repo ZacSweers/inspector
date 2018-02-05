@@ -136,7 +136,7 @@ afterEvaluate { project ->
     }
 
     task androidJavadocs(type: Javadoc) {
-      if (!project.plugins.hasPlugin('kotlin-android')) {
+      if (!project.plugins.hasPlugin('org.jetbrains.kotlin.android')) {
         source = android.sourceSets.main.java.srcDirs
       }
       classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
