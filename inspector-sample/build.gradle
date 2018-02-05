@@ -1,37 +1,29 @@
-buildscript {
-  repositories {
-    jcenter()
-    maven { url deps.build.repositories.plugins }
-  }
-  dependencies {
-    classpath deps.build.gradlePlugins.apt
-    classpath deps.build.gradlePlugins.errorProne
-  }
+plugins {
+  id 'java-library'
+  id 'net.ltgt.apt-idea' version '0.13'
+  id 'net.ltgt.errorprone' version '0.0.13'
 }
-
-apply plugin: 'java'
-apply plugin: 'net.ltgt.apt'
-apply plugin: 'idea'
-apply plugin: 'net.ltgt.errorprone'
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
 repositories {
-  maven { url deps.build.repositories.google }
+  google()
 }
 
 dependencies {
-  compileOnly project(':inspector-compiler')
+  apt project(':inspector-compiler')
+  apt project(':inspector-factory-compiler')
   compileOnly project(':inspector-factory-compiler')
-  compileOnly project(':compiler-extensions:inspector-android-compiler-extension')
-  compileOnly project(':compiler-extensions:inspector-rave-compiler-extension')
-  compileOnly project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  apt project(':compiler-extensions:inspector-android-compiler-extension')
+  apt project(':compiler-extensions:inspector-rave-compiler-extension')
+  apt project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  apt deps.auto.value
   compileOnly deps.auto.value
   compileOnly deps.misc.errorProneAnnotations
   compileOnly deps.misc.rave
-  compileOnly deps.misc.retrofit
 
+  implementation deps.misc.retrofit
   implementation project(':inspector')
   implementation deps.support.annotations
 
