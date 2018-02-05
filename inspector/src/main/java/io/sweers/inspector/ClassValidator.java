@@ -64,6 +64,7 @@ final class ClassValidator<T> extends Validator<T> {
     }
 
     /** Creates a method binding for each of declared method of {@code type}. */
+    @SuppressWarnings("ClassNewInstance")
     private void createMethodBindings(Inspector inspector,
         Type type,
         Map<String, MethodBinding<?>> methodBindings) {
