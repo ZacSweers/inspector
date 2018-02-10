@@ -19,6 +19,7 @@ import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 import io.sweers.inspector.Inspector;
 import io.sweers.inspector.InspectorIgnored;
+import io.sweers.inspector.SelfValidating;
 import io.sweers.inspector.Types;
 import io.sweers.inspector.ValidatedBy;
 import io.sweers.inspector.ValidationException;
@@ -51,6 +52,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
@@ -68,16 +71,18 @@ import static javax.lang.model.element.Modifier.STATIC;
   private Messager messager;
   private Filer filer;
   private Elements elements;
+  private javax.lang.model.util.Types typeUtils;
 
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     messager = processingEnv.getMessager();
     filer = processingEnv.getFiler();
     elements = processingEnv.getElementUtils();
+    typeUtils = processingEnv.getTypeUtils();
   }
 
   @Override public SourceVersion getSupportedSourceVersion() {
-    return SourceVersion.RELEASE_8;
+    return SourceVersion.latestSupported();
   }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
@@ -102,7 +107,48 @@ import static javax.lang.model.element.Modifier.STATIC;
     return false;
   }
 
+  @SuppressWarnings("Duplicates") private boolean implementsSelfValidating(TypeElement type) {
+    TypeMirror validatorFactoryType =
+        elements.getTypeElement(SelfValidating.class.getCanonicalName())
+            .asType();
+    TypeMirror typeMirror = type.asType();
+    if (!type.getInterfaces()
+        .isEmpty() || typeMirror.getKind() != TypeKind.NONE) {
+      while (typeMirror.getKind() != TypeKind.NONE) {
+        if (searchInterfacesAncestry(typeMirror, validatorFactoryType)) {
+          return true;
+        }
+        type = (TypeElement) typeUtils.asElement(typeMirror);
+        typeMirror = type.getSuperclass();
+      }
+    }
+    return false;
+  }
+
+  @SuppressWarnings("Duplicates")
+  private boolean searchInterfacesAncestry(TypeMirror rootIface, TypeMirror target) {
+    TypeElement rootIfaceElement = (TypeElement) typeUtils.asElement(rootIface);
+    // check if it implements valid interfaces
+    for (TypeMirror iface : rootIfaceElement.getInterfaces()) {
+      TypeElement ifaceElement = (TypeElement) typeUtils.asElement(rootIface);
+      while (iface.getKind() != TypeKind.NONE) {
+        if (typeUtils.isSameType(iface, target)) {
+          return true;
+        }
+        // go up
+        if (searchInterfacesAncestry(iface, target)) {
+          return true;
+        }
+        // then move on
+        iface = ifaceElement.getSuperclass();
+      }
+    }
+    return false;
+  }
+
   private boolean applicable(TypeElement type) {
+    boolean isSelfValidating = implementsSelfValidating(type);
+
     // check that the class contains a public static method returning a Validator
     TypeName typeName = TypeName.get(type.asType());
     ParameterizedTypeName validatorType =
@@ -115,7 +161,7 @@ import static javax.lang.model.element.Modifier.STATIC;
         TypeMirror rType = method.getReturnType();
         TypeName returnType = TypeName.get(rType);
         if (returnType.equals(validatorType)) {
-          return true;
+          return checkSelfValidating(isSelfValidating, type);
         }
 
         if (returnType.equals(validatorType.rawType) || (returnType instanceof ParameterizedTypeName
@@ -138,7 +184,7 @@ import static javax.lang.model.element.Modifier.STATIC;
       if (typeName instanceof ParameterizedTypeName) {
         ParameterizedTypeName pTypeName = (ParameterizedTypeName) typeName;
         if (pTypeName.rawType.equals(argument)) {
-          return true;
+          return checkSelfValidating(isSelfValidating, type);
         }
       } else {
         messager.printMessage(Diagnostic.Kind.WARNING,
@@ -152,6 +198,18 @@ import static javax.lang.model.element.Modifier.STATIC;
     }
 
     return false;
+  }
+
+  private boolean checkSelfValidating(boolean isSelfValidating,
+      TypeElement type) {
+    if (isSelfValidating) {
+      messager.printMessage(Diagnostic.Kind.WARNING,
+          String.format("Found public static method returning Validator on %s class, but "
+                  + "it also implements SelfValidating. Skipping InspectorValidator generation.",
+              type));
+      return false;
+    }
+    return true;
   }
 
   private Map<String, ExecutableElement> getProperties(TypeElement targetClass) {
@@ -400,6 +458,11 @@ import static javax.lang.model.element.Modifier.STATIC;
   private static List<Property> readProperties(Map<String, ExecutableElement> properties) {
     List<Property> values = new ArrayList<>();
     for (Map.Entry<String, ExecutableElement> entry : properties.entrySet()) {
+      if (entry.getValue()
+          .getReturnType() instanceof NoType) {
+        // Covers things like void types
+        continue;
+      }
       values.add(new Property(entry.getKey(), entry.getValue()));
     }
     return values;

@@ -22,6 +22,7 @@ public final class Inspector {
     BUILT_IN_FACTORIES.add(CollectionValidator.FACTORY);
     BUILT_IN_FACTORIES.add(MapValidator.FACTORY);
     BUILT_IN_FACTORIES.add(ArrayValidator.FACTORY);
+    BUILT_IN_FACTORIES.add(SelfValidating.FACTORY);
     BUILT_IN_FACTORIES.add(ClassValidator.FACTORY);
   }
 
