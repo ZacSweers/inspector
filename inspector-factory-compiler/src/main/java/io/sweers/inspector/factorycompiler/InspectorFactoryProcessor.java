@@ -175,10 +175,9 @@ import static javax.tools.Diagnostic.Kind.ERROR;
           addControlFlow(classes, CodeBlock.of("$N", type), elementTypeName, numClasses);
           numClasses++;
 
-          if (jsonAdapterMethod.getParameters().size() == 0) {
-            classes.addStatement("return $T.$L()",
-                element,
-                jsonAdapterMethod.getSimpleName());
+          if (jsonAdapterMethod.getParameters()
+              .size() == 0) {
+            classes.addStatement("return $T.$L()", element, jsonAdapterMethod.getSimpleName());
           } else {
             classes.addStatement("return $T.$L($N)",
                 element,
