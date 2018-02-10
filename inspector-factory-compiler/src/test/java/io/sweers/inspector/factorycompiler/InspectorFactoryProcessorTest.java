@@ -20,7 +20,10 @@ public final class InspectorFactoryProcessorTest {
     // Person 3 has no validator method, but that's a-ok! We should just ignore it
     JavaFileObject person3 = JavaFileObjects.forResource("PersonThree.java");
 
-    assertAbout(javaSources()).that(Arrays.asList(factory, person, person2, person3))
+    // Person 4 has a validator method with no args
+    JavaFileObject person4 = JavaFileObjects.forResource("PersonFour.java");
+
+    assertAbout(javaSources()).that(Arrays.asList(factory, person, person2, person3, person4))
         .withClasspathFrom(getClass().getClassLoader())
         .processedWith(new InspectorProcessor(),
             new AutoValueProcessor(),

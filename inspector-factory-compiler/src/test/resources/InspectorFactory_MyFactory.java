@@ -16,6 +16,8 @@ public final class InspectorFactory_MyFactory extends MyFactory {
       return Person.validator(inspector);
     } else if (type.equals(PersonTwo.class)) {
       return PersonTwo.validator(inspector);
+    } else if (type.equals(PersonFour.class)) {
+      return PersonFour.validator();
     }
     return null;
   }

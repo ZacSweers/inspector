@@ -175,10 +175,16 @@ import static javax.tools.Diagnostic.Kind.ERROR;
           addControlFlow(classes, CodeBlock.of("$N", type), elementTypeName, numClasses);
           numClasses++;
 
-          classes.addStatement("return $T.$L($N)",
-              element,
-              jsonAdapterMethod.getSimpleName(),
-              moshi);
+          if (jsonAdapterMethod.getParameters().size() == 0) {
+            classes.addStatement("return $T.$L()",
+                element,
+                jsonAdapterMethod.getSimpleName());
+          } else {
+            classes.addStatement("return $T.$L($N)",
+                element,
+                jsonAdapterMethod.getSimpleName(),
+                moshi);
+          }
         }
       }
     }
@@ -258,11 +264,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
       //noinspection Convert2Lambda this doesn't work on CI as a lambda/method ref ಠ_ಠ
       return e.getTypeMirrors()
           .stream()
-          .map(new Function<TypeMirror, String>() {
-            @Override public String apply(TypeMirror typeMirror) {
-              return typeMirror.toString();
-            }
-          })
+          .map((Function<TypeMirror, String>) TypeMirror::toString)
           .map(name -> elementUtils.getTypeElement(name));
     }
     throw new RuntimeException(
@@ -302,7 +304,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         .printMessage(ERROR, message, element);
   }
 
-  private boolean implementsValidatorFactory(TypeElement type) {
+  @SuppressWarnings("Duplicates") private boolean implementsValidatorFactory(TypeElement type) {
     TypeMirror validatorFactoryType =
         elementUtils.getTypeElement(Validator.Factory.class.getCanonicalName())
             .asType();
@@ -320,6 +322,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     return false;
   }
 
+  @SuppressWarnings("Duplicates")
   private boolean searchInterfacesAncestry(TypeMirror rootIface, TypeMirror target) {
     TypeElement rootIfaceElement = (TypeElement) typeUtils.asElement(rootIface);
     // check if it implements valid interfaces
