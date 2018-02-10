@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
  */
 public final class Inspector {
   private static final List<Validator.Factory> BUILT_IN_FACTORIES = new ArrayList<>(5);
-  private static final ThreadLocal<List<DeferredAdapter<?>>> REENTRANT_CALLS = new ThreadLocal<>();
 
   static {
     BUILT_IN_FACTORIES.add(StandardValidators.FACTORY);
@@ -26,6 +25,8 @@ public final class Inspector {
     BUILT_IN_FACTORIES.add(ClassValidator.FACTORY);
   }
 
+  @SuppressWarnings("ThreadLocalUsage")
+  private final ThreadLocal<List<DeferredAdapter<?>>> reentrantCalls = new ThreadLocal<>();
   private final List<Validator.Factory> factories;
   private final Map<Object, Validator<?>> adapterCache = new LinkedHashMap<>();
 
@@ -67,7 +68,7 @@ public final class Inspector {
     }
 
     // Short-circuit if this is a reentrant call.
-    List<DeferredAdapter<?>> deferredAdapters = REENTRANT_CALLS.get();
+    List<DeferredAdapter<?>> deferredAdapters = reentrantCalls.get();
     if (deferredAdapters != null) {
       for (DeferredAdapter<?> deferredAdapter : deferredAdapters) {
         if (deferredAdapter.cacheKey == null) {
@@ -80,7 +81,7 @@ public final class Inspector {
       }
     } else {
       deferredAdapters = new ArrayList<>();
-      REENTRANT_CALLS.set(deferredAdapters);
+      reentrantCalls.set(deferredAdapters);
     }
 
     // Prepare for re-entrant calls, then ask each factory to create a type adapter.
@@ -100,7 +101,7 @@ public final class Inspector {
     } finally {
       deferredAdapters.remove(deferredAdapters.size() - 1);
       if (deferredAdapters.isEmpty()) {
-        REENTRANT_CALLS.remove();
+        reentrantCalls.remove();
       }
     }
 
