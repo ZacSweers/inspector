@@ -239,22 +239,20 @@ import static javax.lang.model.element.Modifier.STATIC;
     String simpleName = targetClass.getSimpleName()
         .toString();
 
-    ClassName targetClassName = ClassName.get(targetClass);
+    ClassName initialClassName = ClassName.get(targetClass);
     TypeVariableName[] genericTypeNames = null;
+    TypeName targetClassName = initialClassName;
 
     if (shouldCreateGenerics) {
       genericTypeNames = new TypeVariableName[typeParams.size()];
       for (int i = 0; i < typeParams.size(); i++) {
         genericTypeNames[i] = TypeVariableName.get(typeParams.get(i));
       }
+      targetClassName = ParameterizedTypeName.get(initialClassName, genericTypeNames);
     }
 
     TypeSpec.Builder validator =
         createValidator(simpleName, targetClassName, genericTypeNames, properties);
-
-    if (shouldCreateGenerics) {
-      validator.addTypeVariables(Arrays.asList(genericTypeNames));
-    }
 
     validator.addModifiers(FINAL);
 

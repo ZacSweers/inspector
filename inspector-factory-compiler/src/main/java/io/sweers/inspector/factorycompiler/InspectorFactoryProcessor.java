@@ -209,18 +209,17 @@ import static javax.tools.Diagnostic.Kind.ERROR;
       TypeName elementTypeName,
       Element element,
       int numGenerics) {
-    ExecutableElement jsonAdapterMethod = getValidatorMethod(element);
-    if (jsonAdapterMethod != null) {
+    ExecutableElement validatorMethod = getValidatorMethod(element);
+    if (validatorMethod != null) {
       TypeName typeName = ((ParameterizedTypeName) elementTypeName).rawType;
       CodeBlock typeBlock = CodeBlock.of("rawType");
 
       addControlFlow(block, typeBlock, typeName, numGenerics);
 
-      if (jsonAdapterMethod.getParameters()
-          .size() > 1) {
+      if (validatorMethod.getParameters().size() > 1) {
         block.addStatement("return $L.$L($N, (($T) $N).getActualTypeArguments())",
             element.getSimpleName(),
-            jsonAdapterMethod.getSimpleName(),
+            validatorMethod.getSimpleName(),
             INSPECTOR_SPEC,
             ParameterizedType.class,
             TYPE_SPEC);

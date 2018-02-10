@@ -12,12 +12,13 @@ import io.sweers.inspector.Inspector;
 import io.sweers.inspector.InspectorIgnored;
 import io.sweers.inspector.ValidatedBy;
 import io.sweers.inspector.Validator;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@AutoValue public abstract class Person {
+@AutoValue public abstract class Person<T, V> {
 
   public static final String FOO = "foo";
   public static final String FOO2 = "foo2";
@@ -67,7 +68,11 @@ import java.util.Set;
     return false;
   }
 
-  public static Validator<Person> validator(Inspector inspector) {
+  public abstract T genericOne();
+
+  public abstract V genericTwo();
+
+  public static <T, V> Validator<Person<T, V>> validator(Inspector inspector, Type[] types) {
     //return new Validator_Person(inspector);
     return null;
   }
