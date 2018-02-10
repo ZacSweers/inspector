@@ -77,7 +77,7 @@ import static javax.lang.model.element.Modifier.STATIC;
   }
 
   @Override public SourceVersion getSupportedSourceVersion() {
-    return SourceVersion.RELEASE_8;
+    return SourceVersion.latestSupported();
   }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
