@@ -20,7 +20,6 @@ public class Property {
   public final ExecutableElement element;
   public final TypeName type;
   public final ImmutableSet<String> annotations;
-  public final TypeMirror validator;
 
   public Property(String humanName, ExecutableElement element) {
     this.methodName = element.getSimpleName()
@@ -30,8 +29,6 @@ public class Property {
 
     type = TypeName.get(element.getReturnType());
     annotations = buildAnnotations(element);
-
-    validator = getAnnotationValue(element, ValidatedBy.class);
   }
 
   static TypeMirror getAnnotationValue(Element foo, Class<?> annotation) {
@@ -76,6 +73,10 @@ public class Property {
 
   public ValidatedBy validatedBy() {
     return element.getAnnotation(ValidatedBy.class);
+  }
+
+  public AnnotationMirror validatedByMirror() {
+    return getAnnotationMirror(element, ValidatedBy.class);
   }
 
   public boolean shouldValidate() {
