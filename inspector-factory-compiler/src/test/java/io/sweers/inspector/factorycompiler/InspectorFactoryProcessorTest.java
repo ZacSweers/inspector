@@ -3,12 +3,12 @@ package io.sweers.inspector.factorycompiler;
 import com.google.auto.value.processor.AutoValueProcessor;
 import com.google.testing.compile.JavaFileObjects;
 import io.sweers.inspector.compiler.InspectorProcessor;
-import java.util.Arrays;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
+import static java.util.Arrays.asList;
 
 public final class InspectorFactoryProcessorTest {
 
@@ -20,7 +20,13 @@ public final class InspectorFactoryProcessorTest {
     // Person 3 has no validator method, but that's a-ok! We should just ignore it
     JavaFileObject person3 = JavaFileObjects.forResource("PersonThree.java");
 
-    assertAbout(javaSources()).that(Arrays.asList(factory, person, person2, person3))
+    // Person 4 has a validator method with no args
+    JavaFileObject person4 = JavaFileObjects.forResource("PersonFour.java");
+
+    // Person 5 is generic
+    JavaFileObject person5 = JavaFileObjects.forResource("PersonFive.java");
+
+    assertAbout(javaSources()).that(asList(factory, person, person2, person3, person4, person5))
         .withClasspathFrom(getClass().getClassLoader())
         .processedWith(new InspectorProcessor(),
             new AutoValueProcessor(),

@@ -1,6 +1,7 @@
 package io.sweers.inspector.compiler;
 
 import com.google.auto.service.AutoService;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -25,7 +26,6 @@ import io.sweers.inspector.ValidatedBy;
 import io.sweers.inspector.ValidationException;
 import io.sweers.inspector.ValidationQualifier;
 import io.sweers.inspector.Validator;
-import io.sweers.inspector.compiler.plugins.InspectorExtensionService;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.Property;
 import java.io.IOException;
@@ -38,6 +38,8 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -66,12 +68,29 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 @AutoService(Processor.class) public final class InspectorProcessor extends AbstractProcessor {
 
-  private final Set<InspectorExtension> extensions = InspectorExtensionService.newInstance()
-      .get();
+  // Depending on how this InspectorProcessor was constructed, we might already have a list of
+  // extensions when init() is run, or, if `extensions` is null, we have a ClassLoader that will be
+  // used to get the list using the ServiceLoader API.
+  private Set<InspectorExtension> extensions;
+  private final ClassLoader loaderForExtensions;
   private Messager messager;
   private Filer filer;
   private Elements elements;
   private javax.lang.model.util.Types typeUtils;
+
+  public InspectorProcessor() {
+    this(InspectorProcessor.class.getClassLoader());
+  }
+
+  @VisibleForTesting InspectorProcessor(ClassLoader loaderForExtensions) {
+    this.extensions = null;
+    this.loaderForExtensions = loaderForExtensions;
+  }
+
+  @VisibleForTesting public InspectorProcessor(Iterable<? extends InspectorExtension> extensions) {
+    this.extensions = ImmutableSet.copyOf(extensions);
+    this.loaderForExtensions = null;
+  }
 
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
@@ -79,6 +98,24 @@ import static javax.lang.model.element.Modifier.STATIC;
     filer = processingEnv.getFiler();
     elements = processingEnv.getElementUtils();
     typeUtils = processingEnv.getTypeUtils();
+
+    try {
+      extensions =
+          ImmutableSet.copyOf(ServiceLoader.load(InspectorExtension.class, loaderForExtensions));
+      // ServiceLoader.load returns a lazily-evaluated Iterable, so evaluate it eagerly now
+      // to discover any exceptions.
+    } catch (Throwable t) {
+      StringBuilder warning = new StringBuilder();
+      warning.append("An exception occurred while looking for AutoValue extensions. "
+          + "No extensions will function.");
+      if (t instanceof ServiceConfigurationError) {
+        warning.append(" This may be due to a corrupt jar file in the compiler's classpath.");
+      }
+      warning.append(" Exception: ")
+          .append(t);
+      messager.printMessage(Diagnostic.Kind.WARNING, warning.toString(), null);
+      extensions = ImmutableSet.of();
+    }
   }
 
   @Override public SourceVersion getSupportedSourceVersion() {
@@ -200,8 +237,7 @@ import static javax.lang.model.element.Modifier.STATIC;
     return false;
   }
 
-  private boolean checkSelfValidating(boolean isSelfValidating,
-      TypeElement type) {
+  private boolean checkSelfValidating(boolean isSelfValidating, TypeElement type) {
     if (isSelfValidating) {
       messager.printMessage(Diagnostic.Kind.WARNING,
           String.format("Found public static method returning Validator on %s class, but "
@@ -239,22 +275,20 @@ import static javax.lang.model.element.Modifier.STATIC;
     String simpleName = targetClass.getSimpleName()
         .toString();
 
-    ClassName targetClassName = ClassName.get(targetClass);
+    ClassName initialClassName = ClassName.get(targetClass);
     TypeVariableName[] genericTypeNames = null;
+    TypeName targetClassName = initialClassName;
 
     if (shouldCreateGenerics) {
       genericTypeNames = new TypeVariableName[typeParams.size()];
       for (int i = 0; i < typeParams.size(); i++) {
         genericTypeNames[i] = TypeVariableName.get(typeParams.get(i));
       }
+      targetClassName = ParameterizedTypeName.get(initialClassName, genericTypeNames);
     }
 
     TypeSpec.Builder validator =
         createValidator(simpleName, targetClassName, genericTypeNames, properties);
-
-    if (shouldCreateGenerics) {
-      validator.addTypeVariables(Arrays.asList(genericTypeNames));
-    }
 
     validator.addModifiers(FINAL);
 

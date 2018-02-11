@@ -175,10 +175,15 @@ import static javax.tools.Diagnostic.Kind.ERROR;
           addControlFlow(classes, CodeBlock.of("$N", type), elementTypeName, numClasses);
           numClasses++;
 
-          classes.addStatement("return $T.$L($N)",
-              element,
-              jsonAdapterMethod.getSimpleName(),
-              moshi);
+          if (jsonAdapterMethod.getParameters()
+              .size() == 0) {
+            classes.addStatement("return $T.$L()", element, jsonAdapterMethod.getSimpleName());
+          } else {
+            classes.addStatement("return $T.$L($N)",
+                element,
+                jsonAdapterMethod.getSimpleName(),
+                moshi);
+          }
         }
       }
     }
@@ -204,18 +209,17 @@ import static javax.tools.Diagnostic.Kind.ERROR;
       TypeName elementTypeName,
       Element element,
       int numGenerics) {
-    ExecutableElement jsonAdapterMethod = getValidatorMethod(element);
-    if (jsonAdapterMethod != null) {
+    ExecutableElement validatorMethod = getValidatorMethod(element);
+    if (validatorMethod != null) {
       TypeName typeName = ((ParameterizedTypeName) elementTypeName).rawType;
       CodeBlock typeBlock = CodeBlock.of("rawType");
 
       addControlFlow(block, typeBlock, typeName, numGenerics);
 
-      if (jsonAdapterMethod.getParameters()
-          .size() > 1) {
+      if (validatorMethod.getParameters().size() > 1) {
         block.addStatement("return $L.$L($N, (($T) $N).getActualTypeArguments())",
             element.getSimpleName(),
-            jsonAdapterMethod.getSimpleName(),
+            validatorMethod.getSimpleName(),
             INSPECTOR_SPEC,
             ParameterizedType.class,
             TYPE_SPEC);
@@ -258,11 +262,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
       //noinspection Convert2Lambda this doesn't work on CI as a lambda/method ref ಠ_ಠ
       return e.getTypeMirrors()
           .stream()
-          .map(new Function<TypeMirror, String>() {
-            @Override public String apply(TypeMirror typeMirror) {
-              return typeMirror.toString();
-            }
-          })
+          .map((Function<TypeMirror, String>) TypeMirror::toString)
           .map(name -> elementUtils.getTypeElement(name));
     }
     throw new RuntimeException(
@@ -302,7 +302,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         .printMessage(ERROR, message, element);
   }
 
-  private boolean implementsValidatorFactory(TypeElement type) {
+  @SuppressWarnings("Duplicates") private boolean implementsValidatorFactory(TypeElement type) {
     TypeMirror validatorFactoryType =
         elementUtils.getTypeElement(Validator.Factory.class.getCanonicalName())
             .asType();
@@ -320,6 +320,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     return false;
   }
 
+  @SuppressWarnings("Duplicates")
   private boolean searchInterfacesAncestry(TypeMirror rootIface, TypeMirror target) {
     TypeElement rootIfaceElement = (TypeElement) typeUtils.asElement(rootIface);
     // check if it implements valid interfaces

@@ -4,7 +4,8 @@ def versions = [
     aptPlugin: '0.13',
     dokka: '0.9.16-eap-3',
     errorProne: '2.2.0',
-    errorPronePlugin: '0.0.13'
+    errorPronePlugin: '0.0.13',
+    kotlin: '1.2.21'
 ]
 
 ext.deps = [
