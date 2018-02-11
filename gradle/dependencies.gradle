@@ -30,8 +30,8 @@ ext.deps = [
     misc: [
         guava: "com.google.guava:guava:24.0-jre",
         javapoet: "com.squareup:javapoet:1.10.0",
+        javaxExtras: 'com.uber.javaxextras:javax-extras:0.1.0',
         errorProneAnnotations: "com.google.errorprone:error_prone_annotations:${versions.errorProne}",
-        jsr305: 'com.google.code.findbugs:jsr305:3.0.2',
         rave: 'com.uber:rave:2.0.0',
         retrofit: 'com.squareup.retrofit2:retrofit:2.3.0'
     ],

@@ -10,7 +10,7 @@ dependencies {
   api project(':inspector')
   api deps.misc.guava
   api deps.misc.javapoet
-  api deps.misc.jsr305
+  api deps.misc.javaxExtras
   compileOnly deps.misc.errorProneAnnotations
 
   errorprone deps.build.errorProne

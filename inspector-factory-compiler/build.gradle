@@ -26,6 +26,7 @@ dependencies {
   api project(':inspector')
   api project(':inspector-factory-compiler-annotations')
 
+  compileOnly deps.misc.javaxExtras
   compileOnly deps.auto.service
   implementation deps.auto.value
   implementation deps.misc.guava

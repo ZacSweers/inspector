@@ -27,6 +27,7 @@ dependencies {
   api deps.misc.guava
   api deps.misc.javapoet
   api deps.misc.rave
+  compileOnly deps.misc.javaxExtras
   compileOnly deps.auto.service
   compileOnly deps.misc.errorProneAnnotations
 

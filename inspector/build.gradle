@@ -23,8 +23,8 @@ sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
 
 dependencies {
+  compileOnly deps.misc.javaxExtras
   compileOnly deps.misc.errorProneAnnotations
-  compileOnly deps.misc.jsr305
 
   errorprone deps.build.errorProne
 

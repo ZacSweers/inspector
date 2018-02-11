@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018. Zac Sweers
+ * Copyright (c) 2018. Zac Sweers
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-plugins {
-  id 'java-library'
-  id 'net.ltgt.errorprone'
-}
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-dependencies {
-  api project(':inspector')
-  compileOnly deps.misc.javaxExtras
-}
-
-apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
+/**
+ * Nullability compiler extensions.
+ */
+@com.uber.javaxextras.FieldsMethodsAndParametersAreNonNullByDefault
+package io.sweers.inspector.extensions.nullability;

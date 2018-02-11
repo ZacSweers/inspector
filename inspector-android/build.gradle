@@ -25,6 +25,7 @@ targetCompatibility = JavaVersion.VERSION_1_7
 dependencies {
   api project(':inspector')
   api deps.support.annotations
+  compileOnly deps.misc.javaxExtras
 
   errorprone deps.build.errorProne
 

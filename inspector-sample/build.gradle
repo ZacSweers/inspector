@@ -31,6 +31,7 @@ dependencies {
   apt project(':compiler-extensions:inspector-rave-compiler-extension')
   apt project(':compiler-extensions:inspector-autovalue-compiler-extension')
   apt deps.auto.value
+  compileOnly deps.misc.javaxExtras
   compileOnly deps.auto.value
   compileOnly deps.misc.errorProneAnnotations
   compileOnly deps.misc.rave
