@@ -1,5 +1,6 @@
 package io.sweers.inspector.compiler;
 
+import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
@@ -18,6 +19,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
+import io.sweers.inspector.CompositeValidator;
 import io.sweers.inspector.Inspector;
 import io.sweers.inspector.InspectorIgnored;
 import io.sweers.inspector.SelfValidating;
@@ -49,18 +51,23 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.SimpleAnnotationValueVisitor8;
 import javax.tools.Diagnostic;
 
+import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.util.stream.Collectors.toList;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -341,12 +348,28 @@ import static javax.lang.model.element.Modifier.STATIC;
       }
       ValidatedBy validatedBy = prop.validatedBy();
       if (validatedBy != null) {
-        try {
-          validatedBy.value();
-        } catch (MirroredTypeException e) {
-          // This is apparently how to get classes from annotations
-          // Let's never speak of this again
-          constructor.addStatement("this.$N = new $T()", field, ClassName.get(e.getTypeMirror()));
+        Set<TypeElement> validatorClasses = getValueFieldOfClasses(prop.validatedByMirror())
+            .stream()
+            .map(MoreTypes::asTypeElement)
+            .collect(toImmutableSet());
+        if (validatorClasses.isEmpty()) {
+          messager.printMessage(Diagnostic.Kind.ERROR, "No validator classes specified in @ValidatedBy annotation!", prop.element);
+        } else if (validatorClasses.size() == 1) {
+          constructor.addStatement("this.$N = new $T()", field, ClassName.get(validatorClasses.iterator().next()));
+        } else {
+          String validatorsString = String.join(", ", validatorClasses
+              .stream()
+              .map(c -> "new $T()")
+              .collect(toList()));
+          ClassName[] arguments = validatorClasses
+              .stream()
+              .map(ClassName::get)
+              .toArray(ClassName[]::new);
+          CodeBlock validatorsCodeBlock = CodeBlock.of(validatorsString, (Object[]) arguments);
+          constructor.addStatement("this.$N = $T.<$T>of($L)", field,
+              CompositeValidator.class,
+              prop.type,
+              validatorsCodeBlock);
         }
       } else if (usesValidationQualifier) {
         constructor.addStatement("this.$N = validator($N, \"$L\")",
@@ -394,6 +417,30 @@ import static javax.lang.model.element.Modifier.STATIC;
     }
 
     return classBuilder;
+  }
+
+  /**
+   * Returns the contents of a {@code Class[]}-typed "value" field in a given {@code annotationMirror}.
+   */
+  private ImmutableSet<DeclaredType> getValueFieldOfClasses(AnnotationMirror annotationMirror) {
+    return getAnnotationValue(annotationMirror, "value")
+        .accept(
+            new SimpleAnnotationValueVisitor8<ImmutableSet<DeclaredType>, Void>() {
+              @Override
+              public ImmutableSet<DeclaredType> visitType(TypeMirror typeMirror, Void v) {
+                return ImmutableSet.of(MoreTypes.asDeclared(typeMirror));
+              }
+
+              @Override
+              public ImmutableSet<DeclaredType> visitArray(
+                  List<? extends AnnotationValue> values, Void v) {
+                return values
+                    .stream()
+                    .flatMap(value -> value.accept(this, null).stream())
+                    .collect(toImmutableSet());
+              }
+            },
+            null);
   }
 
   private MethodSpec createValidationMethod(TypeName targetClassName,

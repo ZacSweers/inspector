@@ -48,7 +48,7 @@ import java.util.Set;
 
   @Nullable public abstract String occupation();
 
-  @ValidatedBy(DateValidator.class) public abstract Date birthday();
+  @ValidatedBy({DateValidator.class, SecondaryDateValidator.class}) public abstract Date birthday();
 
   @InspectorIgnored public abstract String uuid();
 

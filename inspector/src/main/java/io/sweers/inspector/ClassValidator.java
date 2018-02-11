@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -64,8 +65,7 @@ final class ClassValidator<T> extends Validator<T> {
     }
 
     /** Creates a method binding for each of declared method of {@code type}. */
-    @SuppressWarnings("ClassNewInstance")
-    private void createMethodBindings(Inspector inspector,
+    @SuppressWarnings("ClassNewInstance") private void createMethodBindings(Inspector inspector,
         Type type,
         Map<String, MethodBinding<?>> methodBindings) {
       Class<?> rawType = Types.getRawType(type);
@@ -81,19 +81,36 @@ final class ClassValidator<T> extends Validator<T> {
         Validator<Object> validator;
         ValidatedBy validatedBy = method.getAnnotation(ValidatedBy.class);
         if (validatedBy != null) {
+          Class<? extends Validator<?>>[] validatorClasses = validatedBy.value();
+          if (validatorClasses.length == 0) {
+            throw new IllegalArgumentException(
+                "No validators specified in @ValidatedBy annotation on type "
+                    + returnType
+                    + "#"
+                    + method.getName());
+          }
           try {
-            //noinspection unchecked
-            validator = (Validator<Object>) validatedBy.value()
-                .newInstance();
+            if (validatorClasses.length == 1) {
+              //noinspection unchecked
+              validator = (Validator<Object>) validatorClasses[0].newInstance();
+            } else {
+              Validator[] validators = new Validator[validatorClasses.length];
+              for (int i = 0; i < validatorClasses.length; i++) {
+                Class<? extends Validator<?>> clazz = validatorClasses[i];
+                validators[i] = clazz.newInstance();
+              }
+              //noinspection unchecked
+              validator = CompositeValidator.of(validators);
+            }
           } catch (InstantiationException e) {
-            throw new RuntimeException("Could not instantiate delegate validator "
-                + validatedBy.value()
+            throw new RuntimeException("Could not instantiate delegate validators "
+                + Arrays.toString(validatedBy.value())
                 + " for "
                 + method.getName()
-                + ". Make sure it has a public default constructor.");
+                + ". Make sure they have public default constructors.");
           } catch (IllegalAccessException e) {
             throw new RuntimeException("Delegate validator "
-                + validatedBy.value()
+                + Arrays.toString(validatedBy.value())
                 + " for "
                 + method.getName()
                 + " is not accessible. Make sure it has a public default constructor.");
@@ -102,31 +119,22 @@ final class ClassValidator<T> extends Validator<T> {
           validator = inspector.validator(returnType, annotations);
         }
 
-        if (!method.getReturnType()
-            .isPrimitive() && !Util.hasNullable(method.getDeclaredAnnotations())) {
-            final Validator<Object> originalValidator = validator;
+        boolean isPrimitive = method.getReturnType()
+            .isPrimitive();
+        if (!isPrimitive && !Util.hasNullable(method.getDeclaredAnnotations())) {
+          final Validator<Object> originalValidator = validator;
           validator = new Validator<Object>() {
-            @Override public void validate(Object validationTarget) throws ValidationException {
-              Object result;
-              try {
-                result = method.invoke(validationTarget);
-              } catch (IllegalAccessException e) {
-                // Shouldn't happen, but just in case
-                throw new ValidationException(method.getName() + " is inaccessible.", e);
-              } catch (InvocationTargetException e) {
-                throw new ValidationException(method.getName() + " threw an exception when called.",
-                    e);
-              }
-              if (result == null) {
+            @Override public void validate(Object value) throws ValidationException {
+              if (value == null) {
                 throw new ValidationException("Returned value of "
                     + method.getName()
                     + "() was null.");
               } else {
-                originalValidator.validate(validationTarget);
+                originalValidator.validate(value);
               }
             }
           };
-        } else {
+        } else if (!isPrimitive) {
           validator = validator.nullSafe();
         }
 
@@ -150,8 +158,8 @@ final class ClassValidator<T> extends Validator<T> {
 
     /** Returns true if methods with {@code modifiers} are included in the emitted validator. */
     private boolean includeMethod(boolean platformType, int modifiers) {
-      return !Modifier.isStatic(modifiers) && (Modifier.isPublic(modifiers)
-          || Modifier.isProtected(modifiers) || !platformType);
+      return !Modifier.isStatic(modifiers) && (Modifier.isPublic(modifiers) || Modifier.isProtected(
+          modifiers) || !platformType);
     }
   };
 
@@ -182,12 +190,16 @@ final class ClassValidator<T> extends Validator<T> {
   }
 
   @Override public void validate(T validationTarget) throws ValidationException {
-    try {
-      for (MethodBinding<?> methodBinding : methodsArray) {
+    for (MethodBinding<?> methodBinding : methodsArray) {
+      try {
         methodBinding.validate(validationTarget);
+      } catch (IllegalAccessException e) {
+        // Shouldn't happen, but just in case
+        throw new ValidationException(methodBinding.method.getName() + " is inaccessible.", e);
+      } catch (InvocationTargetException e) {
+        throw new ValidationException(methodBinding.method.getName()
+            + " threw an exception when called.", e);
       }
-    } catch (IllegalAccessException e) {
-      throw new AssertionError();
     }
   }
 
@@ -200,8 +212,9 @@ final class ClassValidator<T> extends Validator<T> {
       this.validator = validator;
     }
 
-    @SuppressWarnings("unchecked") void validate(Object validationTarget) throws IllegalAccessException {
-      validator.validate((T) validationTarget);
+    @SuppressWarnings({ "unchecked", "RedundantThrows" }) void validate(Object validationTarget)
+        throws IllegalAccessException, InvocationTargetException {
+      validator.validate((T) method.invoke(validationTarget));
     }
   }
 }
