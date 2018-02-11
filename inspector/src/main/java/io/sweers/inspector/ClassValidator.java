@@ -124,23 +124,13 @@ final class ClassValidator<T> extends Validator<T> {
         if (!isPrimitive && !Util.hasNullable(method.getDeclaredAnnotations())) {
           final Validator<Object> originalValidator = validator;
           validator = new Validator<Object>() {
-            @Override public void validate(Object validationTarget) throws ValidationException {
-              Object result;
-              try {
-                result = method.invoke(validationTarget);
-              } catch (IllegalAccessException e) {
-                // Shouldn't happen, but just in case
-                throw new ValidationException(method.getName() + " is inaccessible.", e);
-              } catch (InvocationTargetException e) {
-                throw new ValidationException(method.getName() + " threw an exception when called.",
-                    e);
-              }
-              if (result == null) {
+            @Override public void validate(Object value) throws ValidationException {
+              if (value == null) {
                 throw new ValidationException("Returned value of "
                     + method.getName()
                     + "() was null.");
               } else {
-                originalValidator.validate(validationTarget);
+                originalValidator.validate(value);
               }
             }
           };
@@ -200,14 +190,16 @@ final class ClassValidator<T> extends Validator<T> {
   }
 
   @Override public void validate(T validationTarget) throws ValidationException {
-    try {
-      for (MethodBinding<?> methodBinding : methodsArray) {
+    for (MethodBinding<?> methodBinding : methodsArray) {
+      try {
         methodBinding.validate(validationTarget);
+      } catch (IllegalAccessException e) {
+        // Shouldn't happen, but just in case
+        throw new ValidationException(methodBinding.method.getName() + " is inaccessible.", e);
+      } catch (InvocationTargetException e) {
+        throw new ValidationException(methodBinding.method.getName()
+            + " threw an exception when called.", e);
       }
-    } catch (IllegalAccessException e) {
-      throw new AssertionError(e);
-    } catch (InvocationTargetException e) {
-      throw new AssertionError(e);
     }
   }
 
