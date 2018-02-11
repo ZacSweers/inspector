@@ -204,7 +204,9 @@ final class ClassValidator<T> extends Validator<T> {
         methodBinding.validate(validationTarget);
       }
     } catch (IllegalAccessException e) {
-      throw new AssertionError();
+      throw new AssertionError(e);
+    } catch (InvocationTargetException e) {
+      throw new AssertionError(e);
     }
   }
 
@@ -218,8 +220,8 @@ final class ClassValidator<T> extends Validator<T> {
     }
 
     @SuppressWarnings({ "unchecked", "RedundantThrows" }) void validate(Object validationTarget)
-        throws IllegalAccessException {
-      validator.validate((T) validationTarget);
+        throws IllegalAccessException, InvocationTargetException {
+      validator.validate((T) method.invoke(validationTarget));
     }
   }
 }
