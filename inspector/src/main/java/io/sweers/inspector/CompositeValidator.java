@@ -11,14 +11,14 @@ import static java.util.Collections.unmodifiableList;
  */
 public final class CompositeValidator<T> extends Validator<T> {
 
-  @SafeVarargs public static <T> CompositeValidator of(Validator<? super T>... validators) {
+  @SafeVarargs public static <T> CompositeValidator<T> of(Validator<? super T>... validators) {
     if (validators == null) {
       throw new NullPointerException("No validators received!");
     }
     return of(asList(validators));
   }
 
-  public static <T> CompositeValidator of(Iterable<Validator<? super T>> validators) {
+  public static <T> CompositeValidator<T> of(Iterable<Validator<? super T>> validators) {
     if (validators == null) {
       throw new NullPointerException("validators are null");
     }
@@ -26,14 +26,14 @@ public final class CompositeValidator<T> extends Validator<T> {
     for (Validator<? super T> validator : validators) {
       list.add(validator);
     }
-    return new CompositeValidator<T>(list);
+    return new CompositeValidator<>(list);
   }
 
-  public static <T> CompositeValidator of(List<Validator<? super T>> validators) {
+  public static <T> CompositeValidator<T> of(List<Validator<? super T>> validators) {
     if (validators == null) {
       throw new NullPointerException("validators are null");
     }
-    return new CompositeValidator<T>(unmodifiableList(validators));
+    return new CompositeValidator<>(unmodifiableList(validators));
   }
 
   private final List<Validator<? super T>> validators;
@@ -42,7 +42,7 @@ public final class CompositeValidator<T> extends Validator<T> {
     this.validators = validators;
   }
 
-  @Override public void validate(T t) throws ValidationException {
+  @Override public void validate(T t) throws CompositeValidationException {
     List<ValidationException> exceptions = new ArrayList<>();
     for (Validator<? super T> validator : validators) {
       try {
