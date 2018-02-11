@@ -52,7 +52,11 @@ public final class CompositeValidator<T> extends Validator<T> {
       }
     }
     if (!exceptions.isEmpty()) {
-      throw new CompositeValidationException(exceptions);
+      if (exceptions.size() == 1) {
+        throw exceptions.get(0);
+      } else {
+        throw new CompositeValidationException(exceptions);
+      }
     }
   }
 
