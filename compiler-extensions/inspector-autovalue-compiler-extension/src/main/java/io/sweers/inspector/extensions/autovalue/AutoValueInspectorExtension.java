@@ -1,7 +1,6 @@
 package io.sweers.inspector.extensions.autovalue;
 
 import com.google.auto.service.AutoService;
-import com.google.auto.value.AutoValue;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import java.util.Collections;
 import java.util.Set;
@@ -10,7 +9,7 @@ import java.util.Set;
     implements InspectorExtension {
 
   @Override public Set<String> applicableAnnotations() {
-    return Collections.singleton(AutoValue.class.getName());
+    return Collections.singleton("com.google.auto.value.AutoValue");
   }
 
   @Override public String toString() {

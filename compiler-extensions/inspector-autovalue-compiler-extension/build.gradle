@@ -24,7 +24,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
   api project(':inspector-compiler-extensions-api')
-  api deps.auto.value
   compileOnly deps.auto.service
   compileOnly deps.misc.errorProneAnnotations
 
