@@ -119,8 +119,9 @@ final class ClassValidator<T> extends Validator<T> {
           validator = inspector.validator(returnType, annotations);
         }
 
-        if (!method.getReturnType()
-            .isPrimitive() && !Util.hasNullable(method.getDeclaredAnnotations())) {
+        boolean isPrimitive = method.getReturnType()
+            .isPrimitive();
+        if (!isPrimitive && !Util.hasNullable(method.getDeclaredAnnotations())) {
           final Validator<Object> originalValidator = validator;
           validator = new Validator<Object>() {
             @Override public void validate(Object validationTarget) throws ValidationException {
@@ -143,7 +144,7 @@ final class ClassValidator<T> extends Validator<T> {
               }
             }
           };
-        } else {
+        } else if (!isPrimitive) {
           validator = validator.nullSafe();
         }
 
