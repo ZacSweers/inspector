@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
  *
  * <pre><code>
  *   class Foo implements SelfValidating {
- *      {@literal @}Override public void validate(Inspector inspector) throws ValidationException {
+ *      &#64;Override public void validate(Inspector inspector) throws ValidationException {
  *        // Implement custom validation logic here.
  *      }
  *   }
