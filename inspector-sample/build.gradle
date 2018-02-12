@@ -24,13 +24,13 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-  apt project(':inspector-compiler')
-  apt project(':inspector-factory-compiler')
+  annotationProcessor project(':inspector-compiler')
+  annotationProcessor project(':inspector-factory-compiler')
   compileOnly project(':inspector-factory-compiler')
-  apt project(':compiler-extensions:inspector-android-compiler-extension')
-  apt project(':compiler-extensions:inspector-rave-compiler-extension')
-  apt project(':compiler-extensions:inspector-autovalue-compiler-extension')
-  apt deps.auto.value
+  annotationProcessor project(':compiler-extensions:inspector-android-compiler-extension')
+  annotationProcessor project(':compiler-extensions:inspector-rave-compiler-extension')
+  annotationProcessor project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  annotationProcessor deps.auto.value
   compileOnly deps.misc.javaxExtras
   compileOnly deps.auto.value
   compileOnly deps.misc.errorProneAnnotations
@@ -43,9 +43,9 @@ dependencies {
 
   errorprone deps.build.errorProne
 
-  testApt project(':compiler-extensions:inspector-autovalue-compiler-extension')
-  testApt deps.auto.value
-  testApt project(':inspector-compiler')
+  testAnnotationProcessor project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  testAnnotationProcessor deps.auto.value
+  testAnnotationProcessor project(':inspector-compiler')
   testCompileOnly deps.auto.value
   testCompile deps.test.junit
   testCompile deps.test.truth

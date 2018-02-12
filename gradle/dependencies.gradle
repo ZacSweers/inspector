@@ -1,7 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 
 def versions = [
-    aptPlugin: '0.13',
+    aptPlugin: '0.14',
     dokka: '0.9.16-eap-3',
     errorProne: '2.2.0',
     errorPronePlugin: '0.0.13',
