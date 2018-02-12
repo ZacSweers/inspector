@@ -169,7 +169,7 @@ Snapshots of the development version are available in [Sonatype's snapshots repo
 
 ### Notes
 
-See subprojects for more detailed READMEs about specific artifacts.
+See subprojects for more detailed READMEs about specific artifacts. Full Javadocs can be found at https://hzsweers.github.io/inspector/0.x/
 
 This library is heavily influenced by Moshi and RAVE.
 
