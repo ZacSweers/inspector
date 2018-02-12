@@ -81,8 +81,10 @@ public abstract class Foo {
 ```
 
 If you have a lot of these, you may not want to manually have to hook all these up to an inspector instance. To solve 
-this, you can use the `inspector-factory-compiler` annotation processor to generate a factory implementation. Simply stub
-your factory class like so:
+this, there are two batteries-included options you can use.
+ 
+The `inspector-factory-compiler` annotation processor can generate a factory implementation that 
+delegates to all the types on that compilation path. Simply stub a factory class like so:
 
 ```java
 @InspectorFactory(include = AutoValue.class) 
@@ -97,6 +99,38 @@ public abstract class MyFactory implements Validator.Factory {
 - You mark which annotations you want to target your factory to, such as `@AutoValue`.
 - An `InspectorFactory_<YourClassName>` will be generated in the same package for referencing with an implementation
  of the `create()` method.
+ 
+The other option is to use `@GenerateValidator`. Simply annotate desired types with this, and a `Validator`
+implementation will be generated (regardless of the presence of a static `Validator`-returning method). You
+can read these via optional `Validator.Factory` implementation in the annotation via `GenerateValidator.FACTORY`.
+ 
+```java
+@GenerateValidator
+class Foo {
+  public String bar() {
+    //...
+  }
+}
+
+// Later
+Inspector inspector = new Inspector.Builder()
+    .add(GenerateValidator.FACTORY)
+    .build();
+
+inspector.validator(Foo.class).validate(fooInstance); // Validator_Foo.java will be dynamically looked up!
+```
+
+### Tools
+
+There's some helpful tools available:
+* `CompositeValidator` for composing multiple `Validator`s for a given type/property.
+* `Types` is a utility class with helpful factories for creating different `Type` implementations.
+* Types can implement `SelfValidating` to indicate that they handle their own validation, and thus Inspector will just defer to that.
+
+### Sample
+
+There is a sample project under `inspector-sample`, with nontrivial examples and also a [Retrofit][retrofit]
+`Converter.Factory` example to wire it in to your network stack.
 
 ### inspector-android
 
@@ -114,14 +148,14 @@ depedencies {
   // Core Inspector library
   implementation 'io.sweers.inspector:inspector:x.y.z'
   
-  // Compiler to generate validators, in a java project
-  compileOnly 'io.sweers.inspector:inspector-compiler:x.y.z'
-  
-  // Or Android
-  apt 'io.sweers.inspector:inspector-compiler:x.y.z'
+  // Compiler to generate validators, in a Java/Android project
+  annotationProcessor 'io.sweers.inspector:inspector-compiler:x.y.z'
   
   // Or Kotlin (± Android)
   kapt 'io.sweers.inspector:inspector-compiler:x.y.z'
+  
+  // Compiler annotations
+  implementation 'io.sweers.inspector:inspector-compiler-annotations:x.y.z'
   
   // Optional compiler extensions
   compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'
@@ -156,4 +190,5 @@ License
     See the License for the specific language governing permissions and
     limitations under the License.
 
+ [retrofit]: https://github.com/square/retrofit
  [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/
