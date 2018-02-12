@@ -11,6 +11,7 @@ See the `inspector-compiler` README for full documentation.
 ```gradle
 implementation 'io.sweers.inspector:inspector-compiler-annotations:x.y.z'
 ```
+
 Proguard rules for obfuscation:
 
 ```proguard
