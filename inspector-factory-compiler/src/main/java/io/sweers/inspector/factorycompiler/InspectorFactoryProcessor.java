@@ -12,6 +12,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 import io.sweers.inspector.Inspector;
+import io.sweers.inspector.SelfValidating;
 import io.sweers.inspector.Validator;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -88,7 +89,9 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         .collect(Collectors.toSet());
 
     for (TypeElement factory : factories) {
-      if (!implementsValidatorFactory(factory)) {
+      if (!typeImplements(factory,
+          elementUtils.getTypeElement(Validator.Factory.class.getCanonicalName())
+              .asType())) {
         error(factory, "Must implement Validator.Factory!");
       }
       List<TypeElement> validationTargets =
@@ -103,6 +106,11 @@ import static javax.tools.Diagnostic.Kind.ERROR;
                 }
                 return (TypeElement) element;
               })
+              // Filter out anything that's self validating - they'll be handled by the built-in
+              // factory
+              .filter(element -> !typeImplements(element,
+                  elementUtils.getTypeElement(SelfValidating.class.getCanonicalName())
+                      .asType()))
               .collect(Collectors.toList());
 
       String adapterName = classNameOf(factory);
@@ -166,8 +174,8 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         addControlFlowGeneric(generics, elementTypeName, element, numGenerics);
         numGenerics++;
       } else {
-        ExecutableElement jsonAdapterMethod = getValidatorMethod(element);
-        if (jsonAdapterMethod != null) {
+        ExecutableElement validatorMethod = getValidatorMethod(element);
+        if (validatorMethod != null) {
           if (classes == null) {
             classes = CodeBlock.builder();
           }
@@ -175,13 +183,13 @@ import static javax.tools.Diagnostic.Kind.ERROR;
           addControlFlow(classes, CodeBlock.of("$N", type), elementTypeName, numClasses);
           numClasses++;
 
-          if (jsonAdapterMethod.getParameters()
+          if (validatorMethod.getParameters()
               .size() == 0) {
-            classes.addStatement("return $T.$L()", element, jsonAdapterMethod.getSimpleName());
+            classes.addStatement("return $T.$L()", element, validatorMethod.getSimpleName());
           } else {
             classes.addStatement("return $T.$L($N)",
                 element,
-                jsonAdapterMethod.getSimpleName(),
+                validatorMethod.getSimpleName(),
                 moshi);
           }
         }
@@ -207,7 +215,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
   private void addControlFlowGeneric(CodeBlock.Builder block,
       TypeName elementTypeName,
-      Element element,
+      TypeElement element,
       int numGenerics) {
     ExecutableElement validatorMethod = getValidatorMethod(element);
     if (validatorMethod != null) {
@@ -216,7 +224,8 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
       addControlFlow(block, typeBlock, typeName, numGenerics);
 
-      if (validatorMethod.getParameters().size() > 1) {
+      if (validatorMethod.getParameters()
+          .size() > 1) {
         block.addStatement("return $L.$L($N, (($T) $N).getActualTypeArguments())",
             element.getSimpleName(),
             validatorMethod.getSimpleName(),
@@ -238,7 +247,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
     }
   }
 
-  @Nullable private ExecutableElement getValidatorMethod(Element element) {
+  @Nullable private ExecutableElement getValidatorMethod(TypeElement element) {
     ParameterizedTypeName validatorType =
         ParameterizedTypeName.get(ClassName.get(Validator.class), TypeName.get(element.asType()));
     for (ExecutableElement method : ElementFilter.methodsIn(element.getEnclosedElements())) {
@@ -302,15 +311,13 @@ import static javax.tools.Diagnostic.Kind.ERROR;
         .printMessage(ERROR, message, element);
   }
 
-  @SuppressWarnings("Duplicates") private boolean implementsValidatorFactory(TypeElement type) {
-    TypeMirror validatorFactoryType =
-        elementUtils.getTypeElement(Validator.Factory.class.getCanonicalName())
-            .asType();
+  @SuppressWarnings("Duplicates")
+  private boolean typeImplements(TypeElement type, TypeMirror targetType) {
     TypeMirror typeMirror = type.asType();
     if (!type.getInterfaces()
         .isEmpty() || typeMirror.getKind() != TypeKind.NONE) {
       while (typeMirror.getKind() != TypeKind.NONE) {
-        if (searchInterfacesAncestry(typeMirror, validatorFactoryType)) {
+        if (searchInterfacesAncestry(typeMirror, targetType)) {
           return true;
         }
         type = (TypeElement) typeUtils.asElement(typeMirror);
