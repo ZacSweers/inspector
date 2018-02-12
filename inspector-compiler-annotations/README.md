@@ -11,3 +11,13 @@ See the `inspector-compiler` README for full documentation.
 ```gradle
 implementation 'io.sweers.inspector:inspector-compiler-annotations:x.y.z'
 ```
+Proguard rules for obfuscation:
+
+```proguard
+# Retain generated classes that end in the suffix
+-keepnames class Validator_**
+
+# Prevent obfuscation of types which use @GenerateValidator since the simple name
+# is used to reflectively look up the generated adapter.
+-keepnames @io.sweers.inspector.compiler.annotations.GenerateValidator class *
+```
