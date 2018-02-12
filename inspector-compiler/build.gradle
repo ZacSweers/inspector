@@ -24,7 +24,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
   implementation project(':inspector')
-  implementation project(':inspector-compiler-annotations')
+  api project(':inspector-compiler-annotations')
   api project(':inspector-compiler-extensions-api')
 
   compileOnly deps.misc.javaxExtras
