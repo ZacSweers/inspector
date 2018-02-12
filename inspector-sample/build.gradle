@@ -36,12 +36,17 @@ dependencies {
   compileOnly deps.misc.errorProneAnnotations
   compileOnly deps.misc.rave
 
-  implementation deps.misc.retrofit
   implementation project(':inspector')
+  implementation project(':inspector-compiler-annotations')
+  implementation deps.misc.retrofit
   implementation deps.support.annotations
 
   errorprone deps.build.errorProne
 
+  testApt project(':compiler-extensions:inspector-autovalue-compiler-extension')
+  testApt deps.auto.value
+  testApt project(':inspector-compiler')
+  testCompileOnly deps.auto.value
   testCompile deps.test.junit
   testCompile deps.test.truth
 }

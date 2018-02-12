@@ -24,10 +24,10 @@ import io.sweers.inspector.Inspector;
 import io.sweers.inspector.InspectorIgnored;
 import io.sweers.inspector.SelfValidating;
 import io.sweers.inspector.Types;
-import io.sweers.inspector.ValidatedBy;
 import io.sweers.inspector.ValidationException;
 import io.sweers.inspector.ValidationQualifier;
 import io.sweers.inspector.Validator;
+import io.sweers.inspector.compiler.annotations.GenerateValidator;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
 import io.sweers.inspector.compiler.plugins.spi.Property;
 import java.io.IOException;
@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -79,7 +80,7 @@ import static javax.lang.model.element.Modifier.STATIC;
   // extensions when init() is run, or, if `extensions` is null, we have a ClassLoader that will be
   // used to get the list using the ServiceLoader API.
   private Set<InspectorExtension> extensions;
-  private final ClassLoader loaderForExtensions;
+  @Nullable private final ClassLoader loaderForExtensions;
   private Messager messager;
   private Filer filer;
   private Elements elements;
@@ -192,6 +193,10 @@ import static javax.lang.model.element.Modifier.STATIC;
 
   private boolean applicable(TypeElement type) {
     boolean isSelfValidating = implementsSelfValidating(type);
+
+    if (type.getAnnotation(GenerateValidator.class) != null) {
+      return true;
+    }
 
     // check that the class contains a public static method returning a Validator
     TypeName typeName = TypeName.get(type.asType());
@@ -311,7 +316,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
   private TypeSpec.Builder createValidator(String simpleName,
       TypeName targetClassName,
-      TypeVariableName[] genericTypeNames,
+      @Nullable TypeVariableName[] genericTypeNames,
       List<Property> properties) {
     TypeName validatorClass =
         ParameterizedTypeName.get(ClassName.get(Validator.class), targetClassName);
@@ -346,27 +351,31 @@ import static javax.lang.model.element.Modifier.STATIC;
           needsValidatorMethod = true;
         }
       }
-      ValidatedBy validatedBy = prop.validatedBy();
+      AnnotationMirror validatedBy = prop.validatedByMirror();
       if (validatedBy != null) {
-        Set<TypeElement> validatorClasses = getValueFieldOfClasses(prop.validatedByMirror())
-            .stream()
+        Set<TypeElement> validatorClasses = getValueFieldOfClasses(validatedBy).stream()
             .map(MoreTypes::asTypeElement)
             .collect(toImmutableSet());
         if (validatorClasses.isEmpty()) {
-          messager.printMessage(Diagnostic.Kind.ERROR, "No validator classes specified in @ValidatedBy annotation!", prop.element);
+          messager.printMessage(Diagnostic.Kind.ERROR,
+              "No validator classes specified in @ValidatedBy annotation!",
+              prop.element);
         } else if (validatorClasses.size() == 1) {
-          constructor.addStatement("this.$N = new $T()", field, ClassName.get(validatorClasses.iterator().next()));
+          constructor.addStatement("this.$N = new $T()",
+              field,
+              ClassName.get(validatorClasses.iterator()
+                  .next()));
         } else {
-          String validatorsString = String.join(", ", validatorClasses
-              .stream()
-              .map(c -> "new $T()")
-              .collect(toList()));
-          ClassName[] arguments = validatorClasses
-              .stream()
+          String validatorsString = String.join(", ",
+              validatorClasses.stream()
+                  .map(c -> "new $T()")
+                  .collect(toList()));
+          ClassName[] arguments = validatorClasses.stream()
               .map(ClassName::get)
               .toArray(ClassName[]::new);
           CodeBlock validatorsCodeBlock = CodeBlock.of(validatorsString, (Object[]) arguments);
-          constructor.addStatement("this.$N = $T.<$T>of($L)", field,
+          constructor.addStatement("this.$N = $T.<$T>of($L)",
+              field,
               CompositeValidator.class,
               prop.type,
               validatorsCodeBlock);
@@ -420,27 +429,24 @@ import static javax.lang.model.element.Modifier.STATIC;
   }
 
   /**
-   * Returns the contents of a {@code Class[]}-typed "value" field in a given {@code annotationMirror}.
+   * Returns the contents of a {@code Class[]}-typed "value" field in a given {@code
+   * annotationMirror}.
    */
   private ImmutableSet<DeclaredType> getValueFieldOfClasses(AnnotationMirror annotationMirror) {
-    return getAnnotationValue(annotationMirror, "value")
-        .accept(
-            new SimpleAnnotationValueVisitor8<ImmutableSet<DeclaredType>, Void>() {
-              @Override
-              public ImmutableSet<DeclaredType> visitType(TypeMirror typeMirror, Void v) {
-                return ImmutableSet.of(MoreTypes.asDeclared(typeMirror));
-              }
+    return getAnnotationValue(annotationMirror,
+        "value").accept(new SimpleAnnotationValueVisitor8<ImmutableSet<DeclaredType>, Void>() {
+      @Override public ImmutableSet<DeclaredType> visitType(TypeMirror typeMirror, Void v) {
+        return ImmutableSet.of(MoreTypes.asDeclared(typeMirror));
+      }
 
-              @Override
-              public ImmutableSet<DeclaredType> visitArray(
-                  List<? extends AnnotationValue> values, Void v) {
-                return values
-                    .stream()
-                    .flatMap(value -> value.accept(this, null).stream())
-                    .collect(toImmutableSet());
-              }
-            },
-            null);
+      @Override
+      public ImmutableSet<DeclaredType> visitArray(List<? extends AnnotationValue> values, Void v) {
+        return values.stream()
+            .flatMap(value -> value.accept(this, null)
+                .stream())
+            .collect(toImmutableSet());
+      }
+    }, null);
   }
 
   private MethodSpec createValidationMethod(TypeName targetClassName,

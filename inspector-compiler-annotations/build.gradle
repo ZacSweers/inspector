@@ -23,28 +23,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-  implementation project(':inspector')
-  implementation project(':inspector-compiler-annotations')
-  api project(':inspector-compiler-extensions-api')
-
+  api project(':inspector')
   compileOnly deps.misc.javaxExtras
-  compileOnly deps.auto.service
-  implementation deps.auto.value
-  implementation deps.misc.guava
-  api deps.misc.javapoet
-  compileOnly deps.misc.errorProneAnnotations
-
-  errorprone deps.build.errorProne
-
-  testCompile project(':compiler-extensions:inspector-android-compiler-extension')
-  testCompile project(':compiler-extensions:inspector-autovalue-compiler-extension')
-  testCompile project(':compiler-extensions:inspector-nullability-compiler-extension')
-  testCompile project(':compiler-extensions:inspector-rave-compiler-extension')
-  testCompile deps.auto.service
-  testCompile deps.test.junit
-  testCompile deps.test.truth
-  testCompile deps.test.compileTesting
-  testCompile deps.test.toolsJar
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

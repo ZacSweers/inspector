@@ -31,7 +31,7 @@ public class Property {
     annotations = buildAnnotations(element);
   }
 
-  static TypeMirror getAnnotationValue(Element foo, Class<?> annotation) {
+  @Nullable static TypeMirror getAnnotationValue(Element foo, Class<?> annotation) {
     AnnotationMirror am = getAnnotationMirror(foo, annotation);
     if (am == null) {
       return null;
@@ -40,6 +40,7 @@ public class Property {
     return av == null ? null : (TypeMirror) av.getValue();
   }
 
+  @Nullable
   private static AnnotationMirror getAnnotationMirror(Element typeElement, Class<?> clazz) {
     String clazzName = clazz.getName();
     for (AnnotationMirror m : typeElement.getAnnotationMirrors()) {
@@ -52,6 +53,7 @@ public class Property {
     return null;
   }
 
+  @Nullable
   private static AnnotationValue getAnnotationValue(AnnotationMirror annotationMirror, String key) {
     Map<? extends ExecutableElement, ? extends AnnotationValue> values =
         annotationMirror.getElementValues();
@@ -71,11 +73,11 @@ public class Property {
     return element.getAnnotation(annotation);
   }
 
-  public ValidatedBy validatedBy() {
+  @Nullable public ValidatedBy validatedBy() {
     return element.getAnnotation(ValidatedBy.class);
   }
 
-  public AnnotationMirror validatedByMirror() {
+  @Nullable public AnnotationMirror validatedByMirror() {
     return getAnnotationMirror(element, ValidatedBy.class);
   }
 
