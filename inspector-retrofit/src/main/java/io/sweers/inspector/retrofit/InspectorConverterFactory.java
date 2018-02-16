@@ -1,4 +1,4 @@
-package io.sweers.inspector.sample.retrofit;
+package io.sweers.inspector.retrofit;
 
 import io.sweers.inspector.Inspector;
 import io.sweers.inspector.ValidationException;
@@ -16,9 +16,11 @@ import retrofit2.Retrofit;
  */
 public final class InspectorConverterFactory extends Converter.Factory {
   private final Inspector inspector;
+  private final ValidationExceptionCallback callback;
 
-  public InspectorConverterFactory(Inspector inspector) {
+  public InspectorConverterFactory(Inspector inspector, ValidationExceptionCallback callback) {
     this.inspector = inspector;
+    this.callback = callback;
   }
 
   @Override public Converter<ResponseBody, ?> responseBodyConverter(Type type,
@@ -28,20 +30,23 @@ public final class InspectorConverterFactory extends Converter.Factory {
     Converter<ResponseBody, ?> delegateConverter =
         retrofit.nextResponseBodyConverter(this, type, annotations);
 
-    return new InspectorResponseConverter(type, inspector, delegateConverter);
+    return new InspectorResponseConverter(type, inspector, callback, delegateConverter);
   }
 
   private static class InspectorResponseConverter implements Converter<ResponseBody, Object> {
 
     private final Type type;
     private final Inspector inspector;
+    private final ValidationExceptionCallback callback;
     private final Converter<ResponseBody, ?> delegateConverter;
 
     InspectorResponseConverter(Type type,
         Inspector inspector,
+        ValidationExceptionCallback callback,
         Converter<ResponseBody, ?> delegateConverter) {
       this.type = type;
       this.inspector = inspector;
+      this.callback = callback;
       this.delegateConverter = delegateConverter;
     }
 
@@ -51,14 +56,24 @@ public final class InspectorConverterFactory extends Converter.Factory {
         inspector.validator(type)
             .validate(convert);
       } catch (ValidationException validationException) {
-        // This response didn't pass validation, throw the exception.
-        System.out.println("Validation exception: "
-            + type
-            + ". Error: "
-            + validationException.getMessage());
-        throw new IOException(validationException);
+        callback.onValidationException(type, validationException);
       }
       return convert;
     }
+  }
+
+  /**
+   * A callback to be notified on validation exceptions and potentially act on them. Use cases could
+   * include logging, throwing, etc.
+   */
+  public interface ValidationExceptionCallback {
+
+    /**
+     * The callback method with the validation exception passed in.
+     *
+     * @param type the original type that failed.
+     * @param exception the {@link ValidationException}.
+     */
+    void onValidationException(Type type, ValidationException exception) throws IOException;
   }
 }
