@@ -155,7 +155,7 @@ public final class Types {
   }
 
   @SuppressWarnings("unchecked")
-  static <T extends Annotation> T createValidationQualifierImplementation(final Class<T> annotationType) {
+  public static <T extends Annotation> T createValidationQualifierImplementation(final Class<T> annotationType) {
     if (!annotationType.isAnnotation()) {
       throw new IllegalArgumentException(annotationType + " must be an annotation.");
     }
