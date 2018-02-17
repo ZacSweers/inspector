@@ -126,11 +126,12 @@ There's some helpful tools available:
 * `CompositeValidator` for composing multiple `Validator`s for a given type/property.
 * `Types` is a utility class with helpful factories for creating different `Type` implementations.
 * Types can implement `SelfValidating` to indicate that they handle their own validation, and thus Inspector will just defer to that.
+* There is an `inspector-retrofit` artifact with a [Retrofit][retrofit] `Converter.Factory` 
+implementation that you can drop in to your network stack.
 
 ### Sample
 
-There is a sample project under `inspector-sample`, with nontrivial examples and also a [Retrofit][retrofit]
-`Converter.Factory` example to wire it in to your network stack.
+There is a sample project under `inspector-sample` with nontrivial examples.
 
 ### inspector-android
 
@@ -156,6 +157,9 @@ depedencies {
   
   // Compiler annotations
   implementation 'io.sweers.inspector:inspector-compiler-annotations:x.y.z'
+  
+  // Retrofit artifact
+  implementation 'io.sweers.inspector:inspector-retrofit:x.y.z'
   
   // Optional compiler extensions
   compileOnly 'io.sweers.inspector:inspector-android-compiler-extension:x.y.z'

@@ -15,7 +15,7 @@
  */
 
 /**
- * Inspector retrofit sample.
+ * Inspector components for <a href="https://github.com/square/retrofit">Retrofit</a>.
  */
 @com.uber.javaxextras.FieldsMethodsAndParametersAreNonNullByDefault
-package io.sweers.inspector.sample.retrofit;
+package io.sweers.inspector.retrofit;

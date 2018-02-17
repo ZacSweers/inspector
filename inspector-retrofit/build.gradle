@@ -20,27 +20,14 @@ plugins {
   id 'net.ltgt.errorprone'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-  annotationProcessor project(':inspector-compiler')
-  annotationProcessor project(':inspector-factory-compiler')
-  compileOnly project(':inspector-factory-compiler')
-  annotationProcessor project(':compiler-extensions:inspector-android-compiler-extension')
-  annotationProcessor project(':compiler-extensions:inspector-rave-compiler-extension')
-  annotationProcessor project(':compiler-extensions:inspector-autovalue-compiler-extension')
-  annotationProcessor deps.auto.value
   compileOnly deps.misc.javaxExtras
-  compileOnly deps.auto.value
-  compileOnly deps.misc.errorProneAnnotations
-  compileOnly deps.misc.rave
 
   implementation project(':inspector')
-  implementation project(':inspector-compiler-annotations')
-  implementation project(':inspector-retrofit')
   implementation deps.misc.retrofit
-  implementation deps.support.annotations
 
   errorprone deps.build.errorProne
 
@@ -49,5 +36,9 @@ dependencies {
   testAnnotationProcessor project(':inspector-compiler')
   testCompileOnly deps.auto.value
   testCompile deps.test.junit
+  testCompile deps.test.mockWebServer
+  testCompile deps.test.retrofitMoshi
   testCompile deps.test.truth
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
