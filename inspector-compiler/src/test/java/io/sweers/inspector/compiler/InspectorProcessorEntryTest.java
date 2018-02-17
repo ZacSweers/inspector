@@ -14,7 +14,7 @@ import static com.google.testing.compile.Compiler.javac;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
 import static javax.tools.JavaFileObject.Kind.SOURCE;
 
-public final class InspectorProcessorTest {
+public final class InspectorProcessorEntryTest {
 
   @Test public void test() {
 
@@ -23,7 +23,7 @@ public final class InspectorProcessorTest {
 
     assertAbout(javaSources()).that(Arrays.asList(person, dataValidator))
         .withClasspathFrom(getClass().getClassLoader())
-        .processedWith(new InspectorProcessor())
+        .processedWith(new InspectorProcessorEntry())
         .compilesWithoutError()
         .and()
         .generatesSources(JavaFileObjects.forResource("Validator_Person.java"));
@@ -31,7 +31,7 @@ public final class InspectorProcessorTest {
 
   @Test public void shouldIgnoreIfImplementsSelfValidating() {
     Compilation compilation = javac().withClasspathFrom(getClass().getClassLoader())
-        .withProcessors(new InspectorProcessor())
+        .withProcessors(new InspectorProcessorEntry())
         .compile(JavaFileObjects.forSourceLines("test.SelfValidatingFoo",
             "package test;\n"
                 + "\n"

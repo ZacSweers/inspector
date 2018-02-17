@@ -2,7 +2,7 @@ package io.sweers.inspector.factorycompiler;
 
 import com.google.auto.value.processor.AutoValueProcessor;
 import com.google.testing.compile.JavaFileObjects;
-import io.sweers.inspector.compiler.InspectorProcessor;
+import io.sweers.inspector.compiler.InspectorProcessorEntry;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public final class InspectorFactoryProcessorTest {
 
     assertAbout(javaSources()).that(asList(factory, person, person2, person3, person4, person5))
         .withClasspathFrom(getClass().getClassLoader())
-        .processedWith(new InspectorProcessor(),
+        .processedWith(new InspectorProcessorEntry(),
             new AutoValueProcessor(),
             new InspectorFactoryProcessor())
         .compilesWithoutError()
