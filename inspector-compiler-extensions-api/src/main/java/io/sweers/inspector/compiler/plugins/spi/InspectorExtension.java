@@ -12,6 +12,13 @@ import javax.annotation.Nullable;
 public interface InspectorExtension {
 
   /**
+   * Init method to be called when the compiler starts a round
+   */
+  default void initRound(InspectorCompilerContext context) {
+
+  }
+
+  /**
    * @return any other applicable annotations you want to process.
    */
   default Set<String> applicableAnnotations() {
@@ -30,8 +37,8 @@ public interface InspectorExtension {
   }
 
   /**
-   * This is for generating your actual validation. This uses a JavaPoet CodeBlock, and gives you
-   * information about three parameters:
+   * This is for generating your actual (java) validation. This uses a JavaPoet CodeBlock, and
+   * gives you information about three parameters:
    *
    * @param prop the property itself
    * @param propertyName the name of the property being validated.
@@ -41,9 +48,26 @@ public interface InspectorExtension {
    * to the `validate` method.
    * @return a codeblock of validation logic to execute, or null if there is none.
    */
-  @Nullable default CodeBlock generateValidation(Property prop,
-      String propertyName,
+  @Nullable default CodeBlock generateValidation(Property prop, String propertyName,
       ParameterSpec typeInstance) {
+    return null;
+  }
+
+  /**
+   * This is for generating your actual (kotlin) validation. This uses a JavaPoet CodeBlock, and
+   * gives you information about three parameters:
+   *
+   * @param prop the property itself
+   * @param propertyName the name of the property being validated.
+   * If you are validating a `Person`'s `name` property, this is `name`
+   * @param typeInstance the instance of the type being validated.
+   * If you are validating a `Person` instance, this is the instance as passed
+   * to the `validate` method.
+   * @return a codeblock of validation logic to execute, or null if there is none.
+   */
+  @Nullable default com.squareup.kotlinpoet.CodeBlock generateValidation(Property prop,
+      String propertyName,
+      com.squareup.kotlinpoet.ParameterSpec typeInstance) {
     return null;
   }
 
