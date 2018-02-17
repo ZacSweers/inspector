@@ -12,8 +12,8 @@ import io.sweers.inspector.compiler.plugins.spi.Property;
     implements InspectorExtension {
 
   @Override public boolean applicable(Property property) {
-    return !property.type.isPrimitive()
-        && !property.type.equals(TypeName.VOID.box())
+    return !property.javaTypeName.isPrimitive()
+        && !property.javaTypeName.equals(TypeName.VOID.box())
         && !property.annotations.contains("Nullable");
   }
 

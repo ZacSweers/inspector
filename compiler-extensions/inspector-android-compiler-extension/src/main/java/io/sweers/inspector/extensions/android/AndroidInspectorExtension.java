@@ -106,9 +106,9 @@ import javax.lang.model.element.AnnotationMirror;
     Size size = prop.annotation(Size.class);
     if (size != null) {
       String sizeVar = variableName + "Size";
-      if (prop.type instanceof ArrayTypeName) {
+      if (prop.javaTypeName instanceof ArrayTypeName) {
         validationBlock.addStatement("int $L = $L.length", sizeVar, variableName);
-      } else if (prop.type instanceof ParameterizedTypeName) {
+      } else if (prop.javaTypeName instanceof ParameterizedTypeName) {
         // Assume it's a collection or map
         validationBlock.addStatement("int $L = $L.size()", sizeVar, variableName);
       }

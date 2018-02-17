@@ -175,24 +175,24 @@ public final class JavaInspectorProcessor implements InspectorProcessor {
               .toArray(ClassName[]::new);
           CodeBlock validatorsCodeBlock = CodeBlock.of(validatorsString, (Object[]) arguments);
           constructor.addStatement("this.$N = $T.<$T>of($L)", field, CompositeValidator.class,
-              prop.type, validatorsCodeBlock);
+              prop.javaTypeName, validatorsCodeBlock);
         }
       } else if (usesValidationQualifier) {
         constructor.addStatement("this.$N = validator($N, \"$L\")", field, inspector,
             prop.methodName);
-      } else if (genericTypeNames != null && prop.type instanceof ParameterizedTypeName) {
-        ParameterizedTypeName typeName = ((ParameterizedTypeName) prop.type);
+      } else if (genericTypeNames != null && prop.javaTypeName instanceof ParameterizedTypeName) {
+        ParameterizedTypeName typeName = ((ParameterizedTypeName) prop.javaTypeName);
         constructor.addStatement(
             "this.$N = $N.validator($T.newParameterizedType($T.class, " + "$N[$L]))", field,
             inspector, Types.class, typeName.rawType, type,
             getTypeIndexInArray(genericTypeNames, typeName.typeArguments.get(0)));
       } else if (genericTypeNames != null
-          && getTypeIndexInArray(genericTypeNames, prop.type) >= 0) {
+          && getTypeIndexInArray(genericTypeNames, prop.javaTypeName) >= 0) {
         constructor.addStatement("this.$N = $N.validator($N[$L])", field, inspector, type,
-            getTypeIndexInArray(genericTypeNames, prop.type));
+            getTypeIndexInArray(genericTypeNames, prop.javaTypeName));
       } else {
         constructor.addStatement("this.$N = $N.validator($L)", field, inspector,
-            makeType(prop.type));
+            makeType(prop.javaTypeName));
       }
     }
 
@@ -258,7 +258,7 @@ public final class JavaInspectorProcessor implements InspectorProcessor {
           FieldSpec validator = entry.getValue();
           String name = allocator.newName(entry.getKey().methodName);
           validateMethod.addComment("Begin validation for \"$L()\"", prop.methodName)
-              .addStatement("$T $L = $N.$L()", prop.type, name, value, prop.methodName)
+              .addStatement("$T $L = $N.$L()", prop.javaTypeName, name, value, prop.methodName)
               .addCode("\n");
           extensions.stream()
               .sorted(Comparator.comparing(InspectorExtension::priority))
@@ -315,7 +315,7 @@ public final class JavaInspectorProcessor implements InspectorProcessor {
     ImmutableMap.Builder<Property, FieldSpec> fields = ImmutableMap.builder();
 
     for (Property property : properties) {
-      TypeName type = property.type.isPrimitive() ? property.type.box() : property.type;
+      TypeName type = property.javaTypeName.isPrimitive() ? property.javaTypeName.box() : property.javaTypeName;
       ParameterizedTypeName adp = ParameterizedTypeName.get(ClassName.get(Validator.class), type);
       fields.put(property, FieldSpec.builder(adp, property.humanName + "Validator", PRIVATE, FINAL)
           .build());

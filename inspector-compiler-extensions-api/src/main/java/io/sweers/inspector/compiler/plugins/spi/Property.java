@@ -2,6 +2,7 @@ package io.sweers.inspector.compiler.plugins.spi;
 
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.TypeName;
+import com.squareup.kotlinpoet.TypeNames;
 import io.sweers.inspector.InspectorIgnored;
 import io.sweers.inspector.ValidatedBy;
 import java.lang.annotation.Annotation;
@@ -12,22 +13,39 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 public class Property {
   public final String methodName;
   public final String humanName;
-  public final ExecutableElement element;
+  public final Element element;
+
+  /**
+   * @deprecated Use {@link #javaTypeName}.
+   */
+  @Deprecated
   public final TypeName type;
+
+  public final TypeMirror typeMirror;
+  public final TypeName javaTypeName;
+  public final com.squareup.kotlinpoet.TypeName kotlinTypeName;
   public final ImmutableSet<String> annotations;
 
-  public Property(String humanName, ExecutableElement element) {
+  public Property(String humanName, Element element) {
     this.methodName = element.getSimpleName()
         .toString();
     this.humanName = humanName;
     this.element = element;
 
-    type = TypeName.get(element.getReturnType());
+    if (element instanceof ExecutableElement) {
+      typeMirror = ((ExecutableElement) element).getReturnType();
+    } else {
+      typeMirror = element.asType();
+    }
+    javaTypeName = TypeName.get(typeMirror);
+    type = javaTypeName;
+    kotlinTypeName = TypeNames.get(typeMirror);
     annotations = buildAnnotations(element);
   }
 
@@ -85,7 +103,7 @@ public class Property {
     return element.getAnnotation(InspectorIgnored.class) == null && validatedBy() == null;
   }
 
-  private ImmutableSet<String> buildAnnotations(ExecutableElement element) {
+  private ImmutableSet<String> buildAnnotations(Element element) {
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 
     List<? extends AnnotationMirror> annotations = element.getAnnotationMirrors();
