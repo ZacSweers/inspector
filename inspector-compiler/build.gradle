@@ -15,12 +15,20 @@
  */
 
 plugins {
+  id 'org.jetbrains.kotlin.jvm'
   id 'java-library'
   id 'net.ltgt.errorprone'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions {
+    jvmTarget = "1.8"
+    freeCompilerArgs = ['-Xjsr305=strict']
+  }
+}
 
 dependencies {
   implementation project(':inspector')
@@ -31,6 +39,9 @@ dependencies {
   compileOnly deps.auto.service
   implementation deps.auto.value
   implementation deps.misc.guava
+  implementation deps.kotlin.metadata
+  implementation deps.kotlin.poet
+  implementation deps.kotlin.stdLibJre8
   api deps.misc.javapoet
   compileOnly deps.misc.errorProneAnnotations
 

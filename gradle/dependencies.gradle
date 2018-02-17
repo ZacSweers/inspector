@@ -28,6 +28,11 @@ ext.deps = [
             kotlin: "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         ]
     ],
+    kotlin: [
+        metadata: 'me.eugeniomarletti:kotlin-metadata:1.2.1',
+        poet: 'com.squareup:kotlinpoet:0.7.0',
+        stdLibJre8: "org.jetbrains.kotlin:kotlin-stdlib-jre8:${versions.kotlin}"
+    ],
     misc: [
         guava: "com.google.guava:guava:24.0-jre",
         javapoet: "com.squareup:javapoet:1.10.0",
