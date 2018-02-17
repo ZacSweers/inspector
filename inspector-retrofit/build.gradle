@@ -36,5 +36,9 @@ dependencies {
   testAnnotationProcessor project(':inspector-compiler')
   testCompileOnly deps.auto.value
   testCompile deps.test.junit
+  testCompile deps.test.mockWebServer
+  testCompile deps.test.retrofitMoshi
   testCompile deps.test.truth
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

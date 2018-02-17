@@ -5,7 +5,8 @@ def versions = [
     dokka: '0.9.16-eap-3',
     errorProne: '2.2.0',
     errorPronePlugin: '0.0.13',
-    kotlin: '1.2.21'
+    kotlin: '1.2.21',
+    retrofit: '2.3.0'
 ]
 
 ext.deps = [
@@ -33,7 +34,7 @@ ext.deps = [
         javaxExtras: 'com.uber.javaxextras:javax-extras:0.1.0',
         errorProneAnnotations: "com.google.errorprone:error_prone_annotations:${versions.errorProne}",
         rave: 'com.uber:rave:2.0.0',
-        retrofit: 'com.squareup.retrofit2:retrofit:2.3.0'
+        retrofit: "com.squareup.retrofit2:retrofit:${versions.retrofit}"
     ],
     support: [
         annotations: "com.android.support:support-annotations:27.0.2"
@@ -41,6 +42,8 @@ ext.deps = [
     test: [
         compileTesting: 'com.google.testing.compile:compile-testing:0.13',
         junit: 'junit:junit:4.12',
+        mockWebServer: "com.squareup.okhttp3:mockwebserver:3.9.1",
+        retrofitMoshi: "com.squareup.retrofit2:converter-moshi:${versions.retrofit}",
         toolsJar: files(Jvm.current().getToolsJar()),
         truth: 'com.google.truth:truth:0.39'
     ],
