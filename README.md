@@ -133,9 +133,7 @@ implementation that you can drop in to your network stack.
 
 There is a sample project under `inspector-sample` with nontrivial examples.
 
-### inspector-android
-
-This is just a for-fun proof of concept of how some non-generated support library annotation validators 
+`inspector-sample-android` is just a for-fun proof of concept of how some non-generated support library annotation validators 
 would look. This unfortunately is not currently possible since support annotations are not `RUNTIME` retained.
 
 ### Usage
