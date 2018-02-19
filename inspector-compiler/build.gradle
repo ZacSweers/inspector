@@ -16,6 +16,7 @@
 
 plugins {
   id 'org.jetbrains.kotlin.jvm'
+  id 'org.jetbrains.kotlin.kapt'
   id 'java-library'
   id 'net.ltgt.errorprone'
 }
@@ -37,6 +38,7 @@ dependencies {
 
   compileOnly deps.misc.javaxExtras
   compileOnly deps.auto.service
+  kapt deps.auto.service
   implementation deps.auto.value
   implementation deps.misc.guava
   implementation deps.kotlin.metadata
