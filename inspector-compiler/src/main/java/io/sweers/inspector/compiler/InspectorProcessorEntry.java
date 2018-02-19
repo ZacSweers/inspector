@@ -1,82 +1,46 @@
 package io.sweers.inspector.compiler;
 
-import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.NameAllocator;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
-import com.squareup.javapoet.WildcardTypeName;
-import io.sweers.inspector.CompositeValidator;
-import io.sweers.inspector.Inspector;
-import io.sweers.inspector.InspectorIgnored;
 import io.sweers.inspector.SelfValidating;
-import io.sweers.inspector.Types;
-import io.sweers.inspector.ValidationException;
-import io.sweers.inspector.ValidationQualifier;
 import io.sweers.inspector.Validator;
 import io.sweers.inspector.compiler.annotations.GenerateValidator;
 import io.sweers.inspector.compiler.plugins.spi.InspectorCompilerContext;
 import io.sweers.inspector.compiler.plugins.spi.InspectorExtension;
-import io.sweers.inspector.compiler.plugins.spi.Property;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedOptions;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
-import javax.lang.model.util.SimpleAnnotationValueVisitor8;
 import javax.tools.Diagnostic;
 
-import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static java.util.stream.Collectors.toList;
-import static javax.lang.model.element.Modifier.FINAL;
+import static io.sweers.inspector.compiler.InspectorProcessorEntry.OPTION_PREFER_KOTLIN;
 import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
-@AutoService(Processor.class) public final class InspectorProcessorEntry extends AbstractProcessor {
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedOptions({OPTION_PREFER_KOTLIN, "kapt.kotlin.generated"})
+@AutoService(Processor.class)
+public final class InspectorProcessorEntry extends AbstractProcessor {
 
   public static final String OPTION_PREFER_KOTLIN = "inspector.preferKotlin";
 
@@ -141,10 +105,6 @@ import static javax.lang.model.element.Modifier.STATIC;
 
   @Override public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
-  }
-
-  @Override public Set<String> getSupportedOptions() {
-    return Collections.singleton(OPTION_PREFER_KOTLIN);
   }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
