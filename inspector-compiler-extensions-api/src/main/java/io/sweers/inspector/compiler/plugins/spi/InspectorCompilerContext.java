@@ -1,6 +1,5 @@
 package io.sweers.inspector.compiler.plugins.spi;
 
-import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 
@@ -10,7 +9,7 @@ public final class InspectorCompilerContext {
   /** The current {@link ProcessingEnvironment}. */
   public final ProcessingEnvironment processingEnv;
 
-  /** The current {@link JavacProcessingEnvironment.Round}. */
+  /** The current {@link RoundEnvironment}. */
   public final RoundEnvironment roundEnv;
 
   /** A flag indicating whether or not the extension should prefer generating kotlin code. */
