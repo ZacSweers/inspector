@@ -18,6 +18,9 @@ pluginManagement {
         case 'org.jetbrains.kotlin.jvm':
           useModule(deps.build.gradlePlugins.kotlin)
           break
+        case 'org.jetbrains.kotlin.kapt':
+          useModule(deps.build.gradlePlugins.kotlin)
+          break
         case 'org.jetbrains.kotlin.android':
           useModule(deps.build.gradlePlugins.kotlin)
           break
@@ -53,5 +56,6 @@ include ':inspector-factory-compiler'
 include ':inspector-factory-compiler-annotations'
 include ':inspector-retrofit'
 include ':inspector-sample'
+include ':inspector-sample-kotlin'
 include ':inspector-sample-android'
 
