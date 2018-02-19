@@ -22,7 +22,8 @@ import javax.lang.model.type.TypeMirror;
 
   @Override
   public CodeBlock generateValidation(Property prop, String variableName, ParameterSpec value) {
-    return addRaveChecks(prop.element, prop.methodName, value);
+    // TODO this isn't right -_-
+    return addRaveChecks(((ExecutableElement) prop.element), prop.methodName, value);
   }
 
   @Override public String toString() {
