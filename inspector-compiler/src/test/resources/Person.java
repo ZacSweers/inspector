@@ -68,6 +68,6 @@ import java.util.Set;
   }
 
   public static Validator<Person> validator(Inspector inspector) {
-    return new Validator_Person(inspector);
+    return new PersonValidator(inspector);
   }
 }

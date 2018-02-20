@@ -26,36 +26,35 @@ public final class InspectorProcessorEntryTest {
         .processedWith(new InspectorProcessorEntry())
         .compilesWithoutError()
         .and()
-        .generatesSources(JavaFileObjects.forResource("Validator_Person.java"));
+        .generatesSources(JavaFileObjects.forResource("PersonValidator.java"));
   }
 
   @Test public void shouldIgnoreIfImplementsSelfValidating() {
     Compilation compilation = javac().withClasspathFrom(getClass().getClassLoader())
         .withProcessors(new InspectorProcessorEntry())
-        .compile(JavaFileObjects.forSourceLines("test.SelfValidatingFoo",
-            "package test;\n"
-                + "\n"
-                + "import com.google.auto.value.AutoValue;\n"
-                + "import io.sweers.inspector.Inspector;\n"
-                + "import io.sweers.inspector.SelfValidating;\n"
-                + "import io.sweers.inspector.ValidationException;\n"
-                + "import io.sweers.inspector.Validator;\n"
-                + "\n"
-                + "@AutoValue abstract class SelfValidatingFoo implements SelfValidating {\n"
-                + "  @Override public final void validate(Inspector inspector) throws "
-                + "ValidationException {\n"
-                + "    // Custom validation!\n"
-                + "  }\n"
-                + "  \n"
-                + "  public static Validator<SelfValidatingFoo> validator(Inspector inspector) {\n"
-                + "    return new Validator<SelfValidatingFoo>() {\n"
-                + "      @Override public void validate(SelfValidatingFoo selfValidatingFoo)\n"
-                + "          throws ValidationException {\n"
-                + "        \n"
-                + "      }\n"
-                + "    };\n"
-                + "  }\n"
-                + "}"));
+        .compile(JavaFileObjects.forSourceLines("test.SelfValidatingFoo", "package test;\n"
+            + "\n"
+            + "import com.google.auto.value.AutoValue;\n"
+            + "import io.sweers.inspector.Inspector;\n"
+            + "import io.sweers.inspector.SelfValidating;\n"
+            + "import io.sweers.inspector.ValidationException;\n"
+            + "import io.sweers.inspector.Validator;\n"
+            + "\n"
+            + "@AutoValue abstract class SelfValidatingFoo implements SelfValidating {\n"
+            + "  @Override public final void validate(Inspector inspector) throws "
+            + "ValidationException {\n"
+            + "    // Custom validation!\n"
+            + "  }\n"
+            + "  \n"
+            + "  public static Validator<SelfValidatingFoo> validator(Inspector inspector) {\n"
+            + "    return new Validator<SelfValidatingFoo>() {\n"
+            + "      @Override public void validate(SelfValidatingFoo selfValidatingFoo)\n"
+            + "          throws ValidationException {\n"
+            + "        \n"
+            + "      }\n"
+            + "    };\n"
+            + "  }\n"
+            + "}"));
 
     List<JavaFileObject> generatedJavaFiles = compilation.generatedSourceFiles()
         .stream()

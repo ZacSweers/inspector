@@ -9,6 +9,6 @@ import io.sweers.inspector.Validator;
   public abstract String firstName();
 
   public static Validator<PersonTwo> validator(Inspector inspector) {
-    return new Validator_PersonTwo(inspector);
+    return new PersonTwoValidator(inspector);
   }
 }

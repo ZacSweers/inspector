@@ -16,7 +16,7 @@ public final class IntegrationTest {
         .build();
 
     assertThat(inspector.validator(GenerateValidatorClazz.class)).isInstanceOf(
-        Validator_GenerateValidatorClazz.class);
+        GenerateValidatorClazzValidator.class);
   }
 
   @GenerateValidator @AutoValue abstract static class GenerateValidatorClazz {
@@ -29,7 +29,7 @@ public final class IntegrationTest {
     abstract int foo();
 
     static Validator<GenerateValidatorClazzStatic> validator(Inspector inspector) {
-      return new Validator_GenerateValidatorClazzStatic(inspector);
+      return new GenerateValidatorClazzStaticValidator(inspector);
     }
   }
 
@@ -38,7 +38,7 @@ public final class IntegrationTest {
         .build();
 
     assertThat(inspector.validator(GenerateValidatorClazz.class)).isInstanceOf(
-        Validator_GenerateValidatorClazz.class);
+        GenerateValidatorClazzValidator.class);
   }
 
   @AutoValue abstract static class GenerateValidatorClazzStaticGeneric<T> {
@@ -47,7 +47,7 @@ public final class IntegrationTest {
 
     static <T> Validator<GenerateValidatorClazzStaticGeneric<T>> validator(Inspector inspector,
         Type[] types) {
-      return new Validator_GenerateValidatorClazzStaticGeneric<>(inspector, types);
+      return new GenerateValidatorClazzStaticGenericValidator<>(inspector, types);
     }
   }
 }

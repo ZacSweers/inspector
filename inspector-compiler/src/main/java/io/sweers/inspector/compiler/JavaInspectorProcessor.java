@@ -196,7 +196,7 @@ public final class JavaInspectorProcessor implements InspectorProcessor {
       }
     }
 
-    TypeSpec.Builder classBuilder = TypeSpec.classBuilder("Validator_" + simpleName)
+    TypeSpec.Builder classBuilder = TypeSpec.classBuilder(simpleName + "Validator")
         .addModifiers(FINAL)
         .superclass(validatorClass)
         .addFields(validators.values())

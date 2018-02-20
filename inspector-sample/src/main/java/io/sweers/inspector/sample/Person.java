@@ -74,6 +74,6 @@ import java.util.Set;
   public abstract V genericTwo();
 
   public static <T, V> Validator<Person<T, V>> validator(Inspector inspector, Type[] types) {
-    return new Validator_Person<>(inspector, types);
+    return new PersonValidator<>(inspector, types);
   }
 }

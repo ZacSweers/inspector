@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-final class Validator_Person extends Validator<Person> {
+final class PersonValidator extends Validator<Person> {
   private final Validator<String> firstNameValidator;
 
   private final Validator<String> lastNameValidator;
@@ -44,7 +44,7 @@ final class Validator_Person extends Validator<Person> {
 
   private final Validator<Boolean> checkMustBeFalseValidator;
 
-  public Validator_Person(Inspector inspector) {
+  public PersonValidator(Inspector inspector) {
     this.firstNameValidator = inspector.validator(String.class);
     this.lastNameValidator = inspector.validator(String.class);
     this.favoriteNumbersValidator = inspector.validator(int[].class);
