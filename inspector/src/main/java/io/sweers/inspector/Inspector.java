@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +27,8 @@ public final class Inspector {
     BUILT_IN_FACTORIES.add(ClassValidator.FACTORY);
   }
 
-  @SuppressWarnings("ThreadLocalUsage")
-  private final ThreadLocal<List<DeferredAdapter<?>>> reentrantCalls = new ThreadLocal<>();
+  @SuppressWarnings("ThreadLocalUsage") private final ThreadLocal<List<DeferredAdapter<?>>>
+      reentrantCalls = new ThreadLocal<>();
   private final List<Validator.Factory> factories;
   private final Map<Object, Validator<?>> adapterCache = new LinkedHashMap<>();
 
@@ -49,11 +50,23 @@ public final class Inspector {
     return validator(type, Util.NO_ANNOTATIONS);
   }
 
-
   /** Returns a validator for {@code type} with {@code annotationType}, creating it if necessary. */
   public <T> Validator<T> validator(Type type, Class<? extends Annotation> annotationType) {
     return validator(type,
         Collections.singleton(Types.createValidationQualifierImplementation(annotationType)));
+  }
+
+  /** Returns a validator for {@code type} with {@code annotationType}, creating it if necessary. */
+  public <T> Validator<T> validator(Type type, Class<? extends Annotation>... annotationTypes) {
+    if (annotationTypes.length == 1) {
+      return validator(type,
+          Collections.singleton(Types.createValidationQualifierImplementation(annotationTypes[0])));
+    }
+    Set<Annotation> annotations = new LinkedHashSet<>(annotationTypes.length);
+    for (Class<? extends Annotation> annotationType : annotationTypes) {
+      annotations.add(Types.createValidationQualifierImplementation(annotationType));
+    }
+    return validator(type, annotations);
   }
 
   /** Returns a validator for {@code type} and {@code annotations}, creating it if necessary. */
@@ -109,13 +122,12 @@ public final class Inspector {
     throw new IllegalArgumentException("No Validator for " + type + " annotated " + annotations);
   }
 
-
   /**
    * Returns a validator for {@code type} and {@code annotations}, always creating a new one and
-   * skipping past {@code skipPast} for creation. */
+   * skipping past {@code skipPast} for creation.
+   */
   @SuppressWarnings("unchecked") // Factories are required to return only matching Validators.
-  public <T> Validator<T> nextValidator(Validator.Factory skipPast,
-      Type type,
+  public <T> Validator<T> nextValidator(Validator.Factory skipPast, Type type,
       Set<? extends Annotation> annotations) {
     type = Types.canonicalize(type);
 
@@ -128,10 +140,8 @@ public final class Inspector {
           .create(type, annotations, this);
       if (result != null) return result;
     }
-    throw new IllegalArgumentException("No next Validator for "
-        + type
-        + " annotated "
-        + annotations);
+    throw new IllegalArgumentException(
+        "No next Validator for " + type + " annotated " + annotations);
   }
 
   /** Returns a new builder containing all custom factories used by the current instance. */
@@ -157,15 +167,13 @@ public final class Inspector {
 
       return add(new Validator.Factory() {
         @Override public @Nullable Validator<?> create(Type targetType,
-            Set<? extends Annotation> annotations,
-            Inspector inspector) {
+            Set<? extends Annotation> annotations, Inspector inspector) {
           return annotations.isEmpty() && Util.typesMatch(type, targetType) ? validator : null;
         }
       });
     }
 
-    public <T> Builder add(final Type type,
-        final Class<? extends Annotation> annotation,
+    public <T> Builder add(final Type type, final Class<? extends Annotation> annotation,
         final Validator<T> validator) {
       if (type == null) throw new IllegalArgumentException("type == null");
       if (annotation == null) throw new IllegalArgumentException("annotation == null");
@@ -179,8 +187,7 @@ public final class Inspector {
 
       return add(new Validator.Factory() {
         @Override public @Nullable Validator<?> create(Type targetType,
-            Set<? extends Annotation> annotations,
-            Inspector inspector) {
+            Set<? extends Annotation> annotations, Inspector inspector) {
           if (Util.typesMatch(type, targetType)
               && annotations.size() == 1
               && Util.isAnnotationPresent(annotations, annotation)) {

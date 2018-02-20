@@ -10,7 +10,6 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT
-import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
@@ -190,7 +189,7 @@ class KotlinInspectorProcessor : InspectorProcessor {
   }
 
   private fun Adapter.generateAndWrite(): Boolean {
-    val adapterName = "${name}_JsonAdapter"
+    val adapterName = "${name}Validator"
     val outputDir = options[kaptGeneratedOption]?.let(::File) ?: mavenGeneratedDir(adapterName)
     val fileBuilder = com.squareup.kotlinpoet.FileSpec.builder(packageName, adapterName)
     fileBuilder
@@ -236,7 +235,7 @@ private data class Adapter(
 
     val originalTypeName = originalElement.asType().asTypeName()
     val inspectorName = "inspector".allocate()
-    val inspectorParam = ParameterSpec.builder(inspectorName, Inspector::class.asClassName()).build()
+    val inspectorParam = ParameterSpec.builder(inspectorName, Inspector::class).build()
     val typesParam = ParameterSpec.builder("types".allocate(),
         ParameterizedTypeName.get(ARRAY, Type::class.asTypeName())).build()
     val target = ParameterSpec.builder("target".allocate(),
@@ -249,16 +248,16 @@ private data class Adapter(
         .distinctBy { it.typeName to it.validationQualifiers }
         .associate { prop ->
           val typeName = prop.typeName
-          val qualifierNames = prop.validationQualifiers.joinToString("_") {
-            it.annotationType.asElement().simpleName.toString()
+          val qualifierNames = prop.validationQualifiers.joinToString("") {
+            "as${it.annotationType.asElement().simpleName.toString().capitalize()}"
           }
-          val propertyName = "${typeName.simplifiedName().allocate()}_Validator".let {
+          val propertyName = typeName.simplifiedName().allocate().let {
             if (qualifierNames.isBlank()) {
               it
             } else {
-              "${it}_for_$qualifierNames"
+              "$qualifierNames$it"
             }
-          }.let { "${it}_Validator" }
+          }.let { "${it}Validator" }
           val validatorTypeName = ParameterizedTypeName.get(Validator::class.asTypeName(), typeName)
           val key = typeName to prop.validationQualifiers
           return@associate key to PropertySpec.builder(propertyName, validatorTypeName, PRIVATE)
@@ -282,23 +281,20 @@ private data class Adapter(
                   else -> {
                     val initString = qualifiers
                         .mapIndexed { index, _ ->
-                          val annoClassIndex = standardArgsSize + index + 1
-                          return@mapIndexed "%${standardArgsSize}T.createValidationQualifierImplementation(%${annoClassIndex}T::class.java)"
+                          val annoClassIndex = standardArgsSize + index
+                          return@mapIndexed "%${annoClassIndex}T::class.java"
                         }
                         .joinToString()
-                    val initArgs = (listOf(Types::class.asTypeName())
-                        + qualifiers.map { it.annotationType.asTypeName() })
+                    val initArgs = qualifiers
+                        .map { it.annotationType.asTypeName() }
                         .toTypedArray()
-                    ", setOf($initString)" to initArgs
+                    ", $initString" to initArgs
                   }
                 }
                 val finalArgs = arrayOf(*standardArgs, *args)
-                try {
-                  initializer("%1N.validator%2L(%3L$initializerString).nullSafe()", *finalArgs)
-                } catch (e: IllegalArgumentException) {
-                  throw RuntimeException(
-                      "$e " + "InitString is " + "%1N.validator%2L(%3L$initializerString).nullSafe()" + " and args are " + finalArgs.joinToString())
-                }
+                initializer(
+                    "%1N.validator%2L(%3L$initializerString)${if (prop.nullable) ".nullSafe()" else ""}",
+                    *finalArgs)
               }
               .build()
         }
@@ -348,7 +344,7 @@ private data class Adapter(
                 extensions
                     .sortedBy(InspectorExtension::priority)
                     .filter { it.applicable(prop.apiProp) }
-                    .onEach {ext ->
+                    .onEach { ext ->
                       ext.generateValidation(prop.apiProp, name, target)?.let {
                         addComment("Validations contributed by %S", ext.toString())
                             .addCode(it)
@@ -432,7 +428,7 @@ private fun TypeName.makeType(
       // If it's an Array type, we shortcut this to return Types.arrayOf()
       if (rawType == ARRAY) {
         return CodeBlock.of("%T.arrayOf(%L)",
-            Types::class.asTypeName(),
+            Types::class,
             typeArguments[0].objectType().makeType(elementUtils, typesArray, genericTypeNames))
       }
       // If it's a Class type, we have to specify the generics.
@@ -452,7 +448,7 @@ private fun TypeName.makeType(
       CodeBlock.of(
           "%T.newParameterizedType(%T%L::class.java, ${typeArguments
               .joinToString(", ") { "%L" }})",
-          Types::class.asTypeName(),
+          Types::class,
           rawType.objectType(),
           rawTypeParameters,
           *(typeArguments.map {
@@ -474,7 +470,7 @@ private fun TypeName.makeType(
         else -> throw IllegalArgumentException(
             "Unrepresentable wildcard type. Cannot have more than one bound: " + this)
       }
-      CodeBlock.of("%T.%L(%T::class.java)", Types::class.asTypeName(), method, target)
+      CodeBlock.of("%T.%L(%T::class.java)", Types::class, method, target)
     }
     is TypeVariableName -> {
       CodeBlock.of("%N[%L]", typesArray, genericTypeNames.indexOfFirst { it == this })
