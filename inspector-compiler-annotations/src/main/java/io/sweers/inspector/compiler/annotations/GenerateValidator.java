@@ -41,22 +41,16 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
       String packageName = rawType.getPackage()
           .getName();
       try {
-        Class<?> bindingClass = rawType.getClassLoader()
+        Class<? extends Validator> bindingClass = (Class<? extends Validator>) rawType.getClassLoader()
             .loadClass(packageName + "." + clsName + "Validator");
-        try {
-          // Try the inspector constructor
-          //noinspection unchecked
-          constructor =
-              (Constructor<? extends Validator>) bindingClass.getConstructor(Inspector.class);
-          constructor.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-          // Try the inspector + Type[] constructor
-          //noinspection unchecked
-          constructor =
-              (Constructor<? extends Validator>) bindingClass.getConstructor(Inspector.class,
-                  Type[].class);
-          constructor.setAccessible(true);
+        if (type instanceof ParameterizedType) {
+          // Generic, so use the two-arg constructor
+          constructor = bindingClass.getConstructor(Inspector.class, Type[].class);
+        } else {
+          // The normal single-arg inspector constructor
+          constructor = bindingClass.getConstructor(Inspector.class);
         }
+        constructor.setAccessible(true);
       } catch (ClassNotFoundException e) {
         throw new RuntimeException("Unable to find generated Moshi adapter class for " + clsName,
             e);
