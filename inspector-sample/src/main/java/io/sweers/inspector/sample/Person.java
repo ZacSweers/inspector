@@ -2,6 +2,7 @@ package io.sweers.inspector.sample;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
+import android.support.annotation.LongDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import android.support.annotation.StringDef;
@@ -23,10 +24,13 @@ import java.util.Set;
   public static final String FOO = "foo";
   public static final String FOO2 = "foo2";
   public static final int FOO_INT = 0;
+  public static final long FOO_LONG = 0L;
 
   @StringDef({ FOO, FOO2 }) public @interface StringDefChecked {}
 
   @IntDef(FOO_INT) public @interface IntDefChecked {}
+
+  @LongDef(FOO_LONG) public @interface LongDefChecked {}
 
   public abstract String firstName();
 
@@ -43,6 +47,8 @@ import java.util.Set;
   @StringDefChecked public abstract String stringDefChecked();
 
   @IntDefChecked public abstract int intDefChecked();
+
+  @LongDefChecked public abstract long longDefChecked();
 
   @IntRange(from = 0) public abstract int age();
 

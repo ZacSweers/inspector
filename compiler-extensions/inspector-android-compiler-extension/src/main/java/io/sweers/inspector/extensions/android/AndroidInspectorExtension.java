@@ -3,10 +3,12 @@ package io.sweers.inspector.extensions.android;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
+import android.support.annotation.LongDef;
 import android.support.annotation.Size;
 import android.support.annotation.StringDef;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.CodeBlock;
@@ -30,7 +32,7 @@ import javax.lang.model.element.AnnotationMirror;
       Sets.newLinkedHashSet(Arrays.asList(FloatRange.class, IntRange.class, Size.class));
 
   private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS_OF_ANNOTATIONS =
-      Sets.newLinkedHashSet(Arrays.asList(IntDef.class, StringDef.class));
+      Sets.newLinkedHashSet(Arrays.asList(IntDef.class, LongDef.class, StringDef.class));
 
   @Override public boolean applicable(Property property) {
     for (Class<? extends Annotation> a : SUPPORTED_ANNOTATIONS) {
@@ -156,14 +158,30 @@ import javax.lang.model.element.AnnotationMirror;
 
     IntDef intDef = findAnnotationByAnnotation(prop.element.getAnnotationMirrors(), IntDef.class);
     if (intDef != null) {
-      long[] values = intDef.value();
+      int[] values = intDef.value();
       validationBlock.beginControlFlow("if (!($L))",
           String.join(" && ",
-              Longs.asList(values)
+              Ints.asList(values)
                   .stream()
                   .map(l -> variableName + " != " + l)
                   .collect(Collectors.toList())))
           .addStatement("throw new $T(\"$L's value must be within scope of its IntDef. Is \" + $L)",
+              ValidationException.class,
+              prop.methodName,
+              variableName)
+          .endControlFlow();
+    }
+
+    LongDef longDef = findAnnotationByAnnotation(prop.element.getAnnotationMirrors(), LongDef.class);
+    if (longDef != null) {
+      long[] values = longDef.value();
+      validationBlock.beginControlFlow("if (!($L))",
+          String.join(" && ",
+              Longs.asList(values)
+                  .stream()
+                  .map(l -> variableName + " != " + l + "L")
+                  .collect(Collectors.toList())))
+          .addStatement("throw new $T(\"$L's value must be within scope of its LongDef. Is \" + $L)",
               ValidationException.class,
               prop.methodName,
               variableName)
